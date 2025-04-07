@@ -1,0 +1,360 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  CUSTOMER
+  MANAGER
+  GUEST
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum DiscountType {
+  PERCENT
+  FIXED
+}
+
+enum ActivityAction {
+  CREATE_PRODUCT
+  DELETE_USER
+  LOGIN
+  LOGOUT
+  UPDATE_ORDER
+}
+
+enum FulfillmentStatus {
+  UNFULFILLED
+  PARTIALLY_FULFILLED
+  FULFILLED
+  RETURNED
+  CANCELLED
+}
+
+enum ShipmentStatus {
+  PENDING
+  IN_TRANSIT
+  DELIVERED
+  FAILED
+  RETURNED
+}
+
+enum ShippingMethod {
+  STANDARD
+  EXPRESS
+  FREESHIP
+  PICKUP
+}
+
+enum StockMovementType {
+  IN
+  OUT
+}
+
+enum ReturnStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  RECEIVED
+  REFUNDED
+}
+
+model User {
+  id                String         @id @default(cuid())
+  email             String         @unique
+  password          String
+  firstName         String
+  lastName          String
+  phone             String?        @db.VarChar(20)
+  avatarUrl         String?
+  role              UserRole       @default(CUSTOMER)
+  isVerified        Boolean        @default(false)
+  isActive          Boolean        @default(true)
+  billingAddress    Address?       @relation("Billing", fields: [billingAddressId], references: [id])
+  billingAddressId  String?
+  shippingAddress   Address?       @relation("Shipping", fields: [shippingAddressId], references: [id])
+  shippingAddressId String?
+  preferredLanguage String?        @default("en")
+  currency          String?        @default("EUR")
+  metadata          Json?
+  cart              Cart?
+  orders            Order[]
+  reviews           Review[]
+  ActivityLogs      ActivityLog[]
+  Wishlists         Wishlist[]
+  Notification      Notification[]
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+}
+
+model Address {
+  id            String  @id @default(cuid())
+  country       String
+  state         String?
+  city          String
+  zip           String
+  street1       String
+  street2       String?
+  company       String?
+  billingUsers  User[]  @relation("Billing")
+  shippingUsers User[]  @relation("Shipping")
+  Orders        Order[]
+}
+
+model Product {
+  id                  String               @id @default(cuid())
+  name                String
+  description         String
+  imageUrl            String
+  price               Float
+  stock               Int
+  sku                 String?              @unique
+  category            String?
+  metadata            Json?
+  images              ProductImage[]
+  reviews             Review[]
+  variants            ProductVariant[]
+  PriceHistorys       PriceHistory[]
+  cartItems           CartItem[]
+  orderItems          OrderItem[]
+  Wishlists           Wishlist[]
+  StockMovements      StockMovement[]
+  ProductTranslations ProductTranslation[]
+  Category            Category?            @relation(fields: [categoryId], references: [id])
+  categoryId          String?
+  bundles             Product[]            @relation("BundleProducts")
+  bundledIn           Product[]            @relation("BundleProducts")
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+}
+
+model Category {
+  id       String    @id @default(cuid())
+  name     String    @unique
+  products Product[]
+}
+
+model ProductVariant {
+  id             String             @id @default(cuid())
+  productId      String
+  product        Product            @relation(fields: [productId], references: [id])
+  sku            String?            @unique
+  price          Float
+  stock          Int
+  metadata       Json?
+  attributes     VariantAttribute[]
+  images         ProductImage[]
+  StockMovements StockMovement[]
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+}
+
+model VariantAttribute {
+  id        String         @id @default(cuid())
+  name      String // e.g., 'size', 'color'
+  value     String // e.g., 'XL', 'Red'
+  variantId String
+  variant   ProductVariant @relation(fields: [variantId], references: [id])
+
+  @@unique([variantId, name])
+}
+
+model ProductImage {
+  id        String          @id @default(cuid())
+  url       String
+  altText   String?
+  position  Int             @default(0) // allows sorting
+  productId String
+  product   Product         @relation(fields: [productId], references: [id])
+  variant   ProductVariant? @relation(fields: [variantId], references: [id])
+  variantId String?
+}
+
+model PriceHistory {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  price     Float
+  changedAt DateTime @default(now())
+  reason    String?
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id])
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  rating     Int // 1 to 5
+  title      String?
+  comment    String?
+  isVerified Boolean  @default(false)
+  isApproved Boolean  @default(true)
+  createdAt  DateTime @default(now())
+}
+
+model Cart {
+  id        String     @id @default(cuid())
+  userId    String     @unique
+  user      User       @relation(fields: [userId], references: [id])
+  items     CartItem[]
+  updatedAt DateTime   @updatedAt
+}
+
+model CartItem {
+  id        String  @id @default(cuid())
+  cartId    String
+  cart      Cart    @relation(fields: [cartId], references: [id])
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int     @default(1)
+}
+
+model Order {
+  id                String            @id @default(cuid())
+  userId            String
+  user              User              @relation(fields: [userId], references: [id])
+  status            OrderStatus       @default(PENDING)
+  totalAmount       Float
+  items             OrderItem[]
+  shippingAddress   Address?          @relation(fields: [shippingAddressId], references: [id])
+  shippingAddressId String?
+  shippingMethod    ShippingMethod?
+  trackingNumber    String?
+  paymentMethod     String?
+  paidAt            DateTime?
+  DiscountCode      DiscountCode?     @relation(fields: [discountCodeId], references: [id])
+  discountCodeId    String?
+  invoiceNumber     String?           @unique
+  currency          String?           @default("EUR")
+  fulfillmentStatus FulfillmentStatus @default(UNFULFILLED)
+  Shipments         Shipment[]
+  ReturnRequests    ReturnRequest[]
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+}
+
+model OrderItem {
+  id             String          @id @default(cuid())
+  orderId        String
+  order          Order           @relation(fields: [orderId], references: [id])
+  productId      String
+  product        Product         @relation(fields: [productId], references: [id])
+  quantity       Int
+  basePrice      Float
+  discount       Float?
+  tax            Float?
+  totalPrice     Float
+  ReturnRequests ReturnRequest[]
+}
+
+model DiscountCode {
+  id         String       @id @default(cuid())
+  code       String       @unique
+  type       DiscountType
+  value      Float
+  active     Boolean      @default(true)
+  usageLimit Int?
+  usedCount  Int          @default(0)
+  expiresAt  DateTime?
+  orders     Order[]
+}
+
+model ActivityLog {
+  id        String         @id @default(cuid())
+  userId    String?
+  user      User?          @relation(fields: [userId], references: [id])
+  action    ActivityAction
+  targetId  String?
+  metadata  Json?
+  createdAt DateTime       @default(now())
+}
+
+model Wishlist {
+  id        String  @id @default(cuid())
+  userId    String
+  user      User    @relation(fields: [userId], references: [id])
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@unique([userId, productId])
+}
+
+model StockMovement {
+  id        String            @id @default(cuid())
+  productId String
+  product   Product           @relation(fields: [productId], references: [id])
+  variantId String?
+  variant   ProductVariant?   @relation(fields: [variantId], references: [id])
+  type      StockMovementType
+  quantity  Int
+  reason    String?
+  createdAt DateTime          @default(now())
+}
+
+model Shipment {
+  id             String         @id @default(cuid())
+  orderId        String
+  order          Order          @relation(fields: [orderId], references: [id])
+  carrier        String // e.g., "GLS", "DHL", "UPS"
+  trackingNumber String // Tracking code from courier
+  labelUrl       String? // Optional: PDF/URL for shipping label
+  status         ShipmentStatus @default(PENDING)
+  shippedAt      DateTime? // When parcel was shipped
+  deliveredAt    DateTime? // When parcel was delivered
+  metadata       Json? // Optional: store delivery address, weight, box size, etc.
+  lastSyncedAt   DateTime? // Last time tracking was updated
+  failureReason  String? // GLS/DHL rejection, customer not home, etc.
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+model ReturnRequest {
+  id           String       @id @default(cuid())
+  orderId      String
+  order        Order        @relation(fields: [orderId], references: [id])
+  orderItemId  String
+  orderItem    OrderItem    @relation(fields: [orderItemId], references: [id])
+  reason       String
+  status       ReturnStatus @default(PENDING)
+  quantity     Int          @default(1)
+  refundAmount Float?
+  resolution   String? // e.g., "Refund", "Replacement", etc.
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+}
+
+model ProductTranslation {
+  id          String   @id @default(cuid())
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id])
+  language    String // e.g., 'en', 'de', 'fr'
+  name        String
+  description String
+  createdAt   DateTime @default(now())
+
+  @@unique([productId, language]) // Only one translation per language
+}
+
+model Notification {
+  id      String   @id @default(cuid())
+  userId  String?
+  user    User?    @relation(fields: [userId], references: [id])
+  title   String
+  message String
+  type    String // e.g., "ORDER_UPDATE", "REFUND", "SYSTEM"
+  read    Boolean  @default(false)
+  sentAt  DateTime @default(now())
+}
