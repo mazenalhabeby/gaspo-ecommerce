@@ -6,7 +6,7 @@
 
 ## 📁 Project Structure
 
-```bash
+```test
 gaspo-ecommerce/
 ├── backend/ # NestJS backend with Prisma ORM and PostgreSQL
 ├── frontend/ # Next.js frontend with Tailwind CSS
