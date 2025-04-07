@@ -6,11 +6,11 @@
 
 ## 📁 Project Structure
 
-gaspo-ecommerce/
-├── backend/ # NestJS backend with Prisma ORM and PostgreSQL
-├── frontend/ # Next.js frontend with Tailwind CSS
-├── .gitignore # Git ignore configuration for both projects
-└── README.md # This documentation file
+- gaspo-ecommerce/
+- ├── backend/ # NestJS backend with Prisma ORM and PostgreSQL
+- ├── frontend/ # Next.js frontend with Tailwind CSS
+- ├── .gitignore # Git ignore configuration for both projects
+- └── README.md # This documentation file
 
 ---
 
