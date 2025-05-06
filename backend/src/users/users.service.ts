@@ -7,7 +7,7 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { AdminUpdateUserDto } from './dto/admin-update-user.dto';
 import * as bcrypt from 'bcrypt';
-import { PrismaService } from '@/common';
+import { PrismaService } from 'src/common';
 import { User } from '@Prisma/client';
 import { omit } from 'lodash';
 

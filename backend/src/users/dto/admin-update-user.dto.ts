@@ -1,4 +1,4 @@
-import { UserRole } from '@/common';
+import { UserRole } from 'src/common';
 import { IsEnum, IsOptional, IsBoolean } from 'class-validator';
 
 export class AdminUpdateUserDto {
