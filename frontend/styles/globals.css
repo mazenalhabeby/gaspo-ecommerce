@@ -51,7 +51,7 @@
   --card-foreground: oklch(0.129 0.042 264.695);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.208 0.042 265.755);
+  --primary: oklch(0.52 0.1348 246.7);
   --primary-foreground: oklch(0.984 0.003 247.858);
   --secondary: oklch(0.968 0.007 247.896);
   --secondary-foreground: oklch(0.208 0.042 265.755);
@@ -121,6 +121,17 @@
   }
 }
 
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Hide number input arrows (Firefox) */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
 .sculpted-text {
   @apply relative text-transparent bg-clip-text bg-black/50 font-bold  tracking-wide 
     drop-shadow-[0_1px_1px_rgba(0,0,0,0.6)] shadow-inner
@@ -145,4 +156,19 @@
 
 .section-container {
   @apply min-h-screen py-[5rem];
+}
+
+@keyframes fade-slide {
+  from {
+    opacity: 0;
+    transform: translateY(-0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-slide {
+  animation: fade-slide 0.25s ease-out;
 }

@@ -4,6 +4,7 @@ import React from "react"
 import {navbarLinks} from "./data"
 import {useTranslations} from "next-intl"
 import {Button} from "@/components/ui/button"
+import Link from "next/link"
 import {
   Sheet,
   SheetContent,
@@ -17,28 +18,40 @@ import {Link as ScrollLink} from "react-scroll"
 
 const Navlinks = () => {
   const t = useTranslations()
+
   return (
     <div className="hidden lg:flex flex-1 flex-row items-center justify-around max-w-7xl">
-      {navbarLinks.map((link, i) => (
-        <ScrollLink
-          to={link.href}
-          spy={true}
-          smooth={true}
-          duration={500}
-          offset={-50}
-          key={i}
-          className="hidden lg:inline-block sculpted-text sculpted-text-focus uppercase cursor-pointer"
-          activeClass="sculpted-text-active"
-        >
-          {t(link.name)}
-        </ScrollLink>
-      ))}
+      {navbarLinks.map((link, i) =>
+        link.href.startsWith("/") ? (
+          <Link
+            key={i}
+            href={link.href}
+            className="hidden lg:inline-block sculpted-text sculpted-text-focus uppercase cursor-pointer"
+          >
+            {t(link.name)}
+          </Link>
+        ) : (
+          <ScrollLink
+            to={link.href}
+            spy={true}
+            smooth={true}
+            duration={500}
+            offset={-50}
+            key={i}
+            className="hidden lg:inline-block sculpted-text sculpted-text-focus uppercase cursor-pointer"
+            activeClass="sculpted-text-active"
+          >
+            {t(link.name)}
+          </ScrollLink>
+        )
+      )}
     </div>
   )
 }
 
 const NavLinksMobile = () => {
   const t = useTranslations()
+
   return (
     <div className="lg:hidden flex">
       <Sheet>
@@ -57,20 +70,31 @@ const NavLinksMobile = () => {
               {t("navbar.mobile.welcomeDescription")}
             </SheetDescription>
           </SheetHeader>
+
           <div className="flex flex-col items-center justify-around h-full uppercase font-semibold tracking-wider">
-            {navbarLinks.map((link, i) => (
-              <ScrollLink
-                to={link.href}
-                key={i}
-                className="text-xl w-full text-center py-4 cursor-pointer sculpted-text sculpted-text-focus"
-                smooth={true}
-                duration={500}
-                offset={-50}
-                activeClass="bg-red-500 text-white"
-              >
-                {t(link.name)}
-              </ScrollLink>
-            ))}
+            {navbarLinks.map((link, i) =>
+              link.href.startsWith("/") ? (
+                <Link
+                  key={i}
+                  href={link.href}
+                  className="text-xl w-full text-center py-4 cursor-pointer sculpted-text sculpted-text-focus"
+                >
+                  {t(link.name)}
+                </Link>
+              ) : (
+                <ScrollLink
+                  key={i}
+                  to={link.href}
+                  smooth={true}
+                  duration={500}
+                  offset={-50}
+                  activeClass="bg-red-500 text-white"
+                  className="text-xl w-full text-center py-4 cursor-pointer sculpted-text sculpted-text-focus"
+                >
+                  {t(link.name)}
+                </ScrollLink>
+              )
+            )}
           </div>
         </SheetContent>
       </Sheet>

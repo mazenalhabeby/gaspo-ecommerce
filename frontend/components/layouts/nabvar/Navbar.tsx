@@ -30,7 +30,7 @@ const Navbar = () => {
     >
       <div className="flex items-stretch h-full">
         <div
-          className={`px-12 flex-shrink-0 transition-all duration-300 ${
+          className={`px-2 lg:px-12 flex-shrink-0 transition-all duration-300 ${
             scrolled ? "scale-75" : "scale-100"
           } place-self-center`}
         >

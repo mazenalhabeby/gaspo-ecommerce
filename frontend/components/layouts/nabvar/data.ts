@@ -7,6 +7,7 @@ const navbarLinks = [
   {name: "navbar.links.products", href: "products"},
   {name: "navbar.links.partners", href: "partners"},
   {name: "navbar.links.contact", href: "contact"},
+  {name: "navbar.links.shop", href: "/shop"},
 ]
 
 const navbarContact = [
