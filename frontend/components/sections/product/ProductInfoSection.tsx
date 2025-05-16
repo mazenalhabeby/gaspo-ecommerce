@@ -28,8 +28,8 @@ const ProductInfoSection: React.FC<ProductInfoSectionProps> = ({
   handleAddToCart,
 }) => {
   return (
-    <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-      <div className="col-span-1 lg:col-span-2">
+    <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-10">
+      <div className="col-span-1 xl:col-span-2">
         <ProductImageGallery
           mainImage={mainImage}
           setMainImage={setMainImage}
@@ -37,7 +37,7 @@ const ProductInfoSection: React.FC<ProductInfoSectionProps> = ({
           productName={product.name}
         />
       </div>
-      <div className="col-span-1 flex flex-col gap-10">
+      <div className="col-span-1 xl:col-span-1 flex flex-col gap-10 ">
         <ProductInfo
           product={product}
           selectedColor={selectedColor}

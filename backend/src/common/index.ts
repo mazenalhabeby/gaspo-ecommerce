@@ -7,5 +7,7 @@ export * from './guards/session.guard';
 export * from './interfaces/jwt-payload.interface';
 export * from './interfaces/request-with-cookies.interface';
 export * from './interfaces/request-with-user.interface';
+export * from './middleware/blacklist.middleware';
 export * from './services/prisma.service';
 export * from './services/redis.service';
+export * from './types/order.type';

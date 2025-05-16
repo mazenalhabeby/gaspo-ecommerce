@@ -6,7 +6,7 @@ export default function OrderSummary() {
   const delivery = 49
 
   return (
-    <div className="bg-gray-50 border p-6 rounded sticky top-24 space-y-4">
+    <div className="space-y-4">
       <h3 className="font-semibold text-lg">Summary</h3>
       <div className="text-sm space-y-1">
         <div className="flex justify-between">

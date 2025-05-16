@@ -1,9 +1,4 @@
-import {
-  MiddlewareConsumer,
-  Module,
-  NestModule,
-  RequestMethod,
-} from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ProductsModule } from './products/products.module';
@@ -18,7 +13,6 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { ActivityLogModule } from './activity-log/activity-log.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { RedisService } from './common';
-import { BlacklistMiddleware } from './common/middleware/blacklist.middleware';
 
 @Module({
   imports: [
@@ -41,17 +35,18 @@ import { BlacklistMiddleware } from './common/middleware/blacklist.middleware';
   controllers: [],
   providers: [RedisService],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(BlacklistMiddleware)
-      .exclude(
-        { path: 'auth/login', method: RequestMethod.POST },
-        {
-          path: 'auth/register',
-          method: RequestMethod.POST,
-        },
-      )
-      .forRoutes('*');
-  }
-}
+export class AppModule {}
+// implements NestModule {
+//   configure(consumer: MiddlewareConsumer) {
+//     consumer
+//       .apply(BlacklistMiddleware)
+//       .exclude(
+//         { path: 'auth/login', method: RequestMethod.POST },
+//         {
+//           path: 'auth/register',
+//           method: RequestMethod.POST,
+//         },
+//       )
+//       .forRoutes('*');
+//   }
+// }

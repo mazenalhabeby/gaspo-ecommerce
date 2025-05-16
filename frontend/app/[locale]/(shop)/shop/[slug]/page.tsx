@@ -8,7 +8,8 @@ interface Props {
 }
 
 export async function generateMetadata({params}: Props): Promise<Metadata> {
-  const product = products.find((p) => p.slug === params.slug)
+  const {slug} = await params
+  const product = products.find((p) => p.slug === slug)
   if (!product) {
     return {
       title: "Product not found | GASPO",

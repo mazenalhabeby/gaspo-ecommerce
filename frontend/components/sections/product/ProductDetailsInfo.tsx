@@ -5,6 +5,7 @@ import RatingStars from "../../RatingStars"
 import {LiaCartPlusSolid} from "react-icons/lia"
 import QuantityInput from "../../QuantityInput"
 import FavoriteButton from "@/components/FavoriteButton"
+import React from "react"
 
 interface ProductInfoProps {
   product: Product
@@ -42,17 +43,19 @@ export default function ProductInfo({
           />
         </div>
 
-        <div className="flex flex-col items-end">
-          <div className="flex items-center gap-2">
-            <p className="text-gray-400 line-through text-xs md:text-sm font-medium">
-              ${(product.price * 1.5).toFixed(2)}
+        {product.inStock && (
+          <div className="flex flex-col items-end">
+            <div className="flex items-center gap-2">
+              <p className="text-gray-400 line-through text-xs md:text-sm font-medium">
+                ${(product.price * 1.5).toFixed(2)}
+              </p>
+              <span className="text-xs text-red-500 font-medium">Save 30%</span>
+            </div>
+            <p className="text-3xl md:text-5xl font-extrabold text-primary">
+              ${product.price.toFixed(2)}
             </p>
-            <span className="text-xs text-red-500 font-medium">Save 30%</span>
           </div>
-          <p className="text-3xl md:text-5xl font-extrabold text-primary">
-            ${product.price.toFixed(2)}
-          </p>
-        </div>
+        )}
       </div>
       <div className="flex flex-col gap-2">
         <p
@@ -79,7 +82,8 @@ export default function ProductInfo({
                     selectedColor === color
                       ? "bg-blue-600 text-white"
                       : "bg-white text-gray-800"
-                  }`}
+                  } disabled:bg-gray-200 disabled:text-gray-400`}
+                  disabled={!product.inStock}
                 >
                   {color}
                 </button>
@@ -100,7 +104,8 @@ export default function ProductInfo({
                     selectedSize === size
                       ? "bg-gray-900 text-white"
                       : "bg-white text-gray-800"
-                  }`}
+                  } disabled:bg-gray-200 disabled:text-gray-400`}
+                  disabled={!product.inStock}
                 >
                   {size.toUpperCase()}
                 </button>
@@ -109,10 +114,12 @@ export default function ProductInfo({
           </div>
         )}
         {/* Quantity */}
-        <QuantityInput
-          quantity={quantity}
-          onChange={(newQty) => setQuantity(Math.max(1, Number(newQty)))}
-        />
+        {product.inStock && (
+          <QuantityInput
+            quantity={quantity}
+            onChange={(newQty) => setQuantity(Math.max(1, Number(newQty)))}
+          />
+        )}
       </div>
 
       {/* CTA */}
@@ -120,10 +127,19 @@ export default function ProductInfo({
         <button
           onClick={handleAddToCart}
           disabled={!product.inStock}
-          className=" flex flex-row items-center justify-center py-3 w-full bg-primary text-white font-medium rounded hover:bg-primary/90 transition gap-2"
+          className=" flex flex-row items-center justify-center py-3 w-full bg-primary text-white font-medium rounded hover:bg-primary/90 transition gap-2 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed"
         >
-          <LiaCartPlusSolid className="text-2xl" />
-          <span>Add to Cart</span>
+          {!product.inStock ? (
+            <React.Fragment>
+              <LiaCartPlusSolid className="text-2xl" />
+              <span>Out of stock</span>
+            </React.Fragment>
+          ) : (
+            <React.Fragment>
+              <LiaCartPlusSolid className="text-2xl" />
+              <span>Add to Cart</span>
+            </React.Fragment>
+          )}
         </button>
         <FavoriteButton product={product} productId={product.id} />
       </div>

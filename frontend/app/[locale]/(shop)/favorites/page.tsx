@@ -4,26 +4,35 @@ import {useFavoritesStore} from "@/store/favoritesStore"
 import Image from "next/image"
 import {Trash2} from "lucide-react"
 import {useCartStore} from "@/store/cartStore"
+import {FaRegHeart} from "react-icons/fa6"
 import Link from "next/link"
-import {FaRegHeart} from "react-icons/fa"
+import {useDelayedLoading} from "@/hooks/useDelayedLoading"
+import FavoritesPageSkeleton from "@/components/loading/FavoritesPageSkeleton"
 
 export default function FavoritesPage() {
   const {favorites, toggleFavorite} = useFavoritesStore()
   const {addToCart} = useCartStore()
 
+  const loading = useDelayedLoading(1500)
+
+  if (loading) {
+    return <FavoritesPageSkeleton count={favorites.length || 2} />
+  }
+
   return (
-    <div className="container mx-auto px-4 py-12 max-w-4xl min-h-[calc(100vh_-_210px)] flex flex-col items-center justify-center w-full">
+    <div className="container mx-auto px-4 py-8 max-w-4xl h-[calc(100vh_-_210px)] w-full">
       {favorites.length === 0 ? (
-        <div className="flex flex-col items-center justify-center gap-2 col-span-3">
+        <div className="flex flex-col items-center justify-center gap-2 h-full text-center">
           <FaRegHeart className="text-gray-400 w-16 h-16" />
-          <p className="text-gray-500 text-sm">No items in the cart yet.</p>
+          <p className="text-gray-500 text-sm">
+            No items in the favorites yet.
+          </p>
           <Link href="/shop" className="bg-blue-500 text-white p-2 rounded">
             Browse Products
           </Link>
         </div>
       ) : (
         <div className="w-full max-w-3xl mx-auto space-y-6">
-          {" "}
           <h1 className="text-2xl font-bold mb-2">❤️ Favoriten</h1>
           <p className="text-gray-500 text-sm mb-6">
             Hier sind alle Produkte, die du zu deinen Favoriten hinzugefügt
@@ -74,9 +83,10 @@ export default function FavoritesPage() {
                         quantity: 1,
                       })
                     }
-                    className="px-4 py-2 mt-2 rounded bg-blue-600 text-white hover:bg-blue-700 text-sm"
+                    className="px-4 py-2 mt-2 rounded bg-blue-600 text-white hover:bg-blue-700 text-sm disabled:bg-gray-400 disabled:text-gray-200 disabled:cursor-not-allowed"
+                    disabled={!item.inStock}
                   >
-                    Zum Warenkorb hinzufügen
+                    {item.inStock ? "Add to Cart" : "Out of stock"}
                   </button>
                 </div>
               </div>

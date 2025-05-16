@@ -71,6 +71,13 @@ enum ReturnStatus {
   REFUNDED
 }
 
+enum DiscountApplyTo {
+  EACH
+  SECOND_ONLY
+  NTH_ONLY
+  SUBTOTAL
+}
+
 model User {
   id                String         @id @default(cuid())
   email             String         @unique
@@ -116,12 +123,12 @@ model Address {
 model Product {
   id                  String               @id @default(cuid())
   name                String
+  slug                String               @unique
   description         String
   imageUrl            String
   price               Float
   stock               Int
   sku                 String?              @unique
-  category            String?
   metadata            Json?
   images              ProductImage[]
   reviews             Review[]
@@ -136,8 +143,22 @@ model Product {
   categoryId          String?
   bundles             Product[]            @relation("BundleProducts")
   bundledIn           Product[]            @relation("BundleProducts")
+  productDiscounts    ProductDiscount[]
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
+}
+
+model ProductDiscount {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+
+  minQuantity Int
+  maxQuantity Int?
+  type        DiscountType // PERCENT or FIXED
+  value       Float
+  applyTo     DiscountApplyTo // "each", "secondOnly", "nthOnly", etc.
+  createdAt   DateTime        @default(now())
 }
 
 model Category {
@@ -150,6 +171,7 @@ model ProductVariant {
   id             String             @id @default(cuid())
   productId      String
   product        Product            @relation(fields: [productId], references: [id])
+  slug           String             @unique
   sku            String?            @unique
   price          Float
   stock          Int
@@ -224,8 +246,11 @@ model CartItem {
 
 model Order {
   id                String            @id @default(cuid())
-  userId            String
-  user              User              @relation(fields: [userId], references: [id])
+  userId            String?
+  user              User?             @relation(fields: [userId], references: [id])
+  guestName         String?
+  guestEmail        String?
+  guestPhone        String?
   status            OrderStatus       @default(PENDING)
   totalAmount       Float
   items             OrderItem[]
@@ -337,13 +362,14 @@ model ReturnRequest {
 }
 
 model ProductTranslation {
-  id          String   @id @default(cuid())
-  productId   String
-  product     Product  @relation(fields: [productId], references: [id])
-  language    String // e.g., 'en', 'de', 'fr'
-  name        String
-  description String
-  createdAt   DateTime @default(now())
+  id              String   @id @default(cuid())
+  productId       String
+  product         Product  @relation(fields: [productId], references: [id])
+  language        String // e.g., 'en', 'de', 'fr'
+  name            String
+  description     String
+  descriptionJson Json?
+  createdAt       DateTime @default(now())
 
   @@unique([productId, language]) // Only one translation per language
 }
