@@ -35,6 +35,7 @@ const ProductGridSection: React.FC<ProductGridSectionProps> = ({
               width={120}
               height={120}
               className="opacity-50 grayscale"
+              priority
             />
             <p className="text-gray-500 font-semibold">No products found.</p>
           </div>

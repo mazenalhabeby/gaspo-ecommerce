@@ -5,6 +5,7 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
+import {publicRoutes, shoppingRoutes} from "@/lib/routes"
 import {FaHome} from "react-icons/fa"
 
 const BreadcrumbBar = ({product}: {product: {name: string}}) => {
@@ -12,14 +13,17 @@ const BreadcrumbBar = ({product}: {product: {name: string}}) => {
     <Breadcrumb>
       <BreadcrumbList>
         <BreadcrumbItem>
-          <BreadcrumbLink href="/" className="flex items-center gap-1">
+          <BreadcrumbLink
+            href={publicRoutes.home}
+            className="flex items-center gap-1"
+          >
             <FaHome />
             <span className="sr-only">Home</span>
           </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator />
         <BreadcrumbItem>
-          <BreadcrumbLink href="/shop">Products</BreadcrumbLink>
+          <BreadcrumbLink href={shoppingRoutes.shop}>Products</BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator />
         <BreadcrumbItem>

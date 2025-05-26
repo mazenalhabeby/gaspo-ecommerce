@@ -1,8 +1,7 @@
 "use client"
 
-import {useState} from "react"
+import {useState, useMemo} from "react"
 import {useCartStore} from "@/store/cartStore"
-import {Product} from "@/data/products"
 import {Separator} from "../../ui/separator"
 import {toast} from "sonner"
 import {useRouter} from "next/navigation"
@@ -13,24 +12,53 @@ import BreadcrumbBar from "./BreadcrumbBar"
 import RatingStars from "@/components/RatingStars"
 import {useDelayedLoading} from "@/hooks/useDelayedLoading"
 import ProductDetailSkeleton from "@/components/loading/ProductDetailSkeleton"
+import {ProductWithCategory} from "@/lib/schemas/product.schema"
 
-export default function ProductDetailClient({product}: {product: Product}) {
-  const [mainImage, setMainImage] = useState(product.image)
-  const [selectedColor, setSelectedColor] = useState(product.colors?.[0] || "")
-  const [selectedSize, setSelectedSize] = useState(product.sizes?.[0] || "")
+type Props = {
+  product: ProductWithCategory
+}
+
+export default function ProductDetailClient({product}: Props) {
+  const [mainImage, setMainImage] = useState(product.images?.[0]?.url || "")
   const [quantity, setQuantity] = useState(1)
 
-  const loading = useDelayedLoading(3000)
+  const [selectedAttributes, setSelectedAttributes] = useState<
+    Record<string, string>
+  >({})
 
   const router = useRouter()
-
+  const loading = useDelayedLoading(3000)
   const addToCart = useCartStore((s) => s.addToCart)
 
+  // Get all unique attribute fields from variants
+  const allAttributeFields = useMemo(() => {
+    const fieldSet = new Set<string>()
+    product.variants?.forEach((variant) =>
+      variant.attributes?.forEach((attr) => fieldSet.add(attr.name))
+    )
+    return Array.from(fieldSet)
+  }, [product.variants])
+
+  // Match selected variant
+  const selectedVariant = useMemo(() => {
+    return product.variants?.find((variant) =>
+      variant.attributes?.every(
+        (attr) => selectedAttributes[attr.name] === attr.value
+      )
+    )
+  }, [product.variants, selectedAttributes])
+
+  const activePrice = selectedVariant?.price ?? product.price
+  const activeImage =
+    selectedVariant?.metadata?.imageUrl ?? product.images?.[0]?.url ?? mainImage
+
   const cartItem = {
-    id: `${product.id}-${selectedColor}-${selectedSize}`,
-    name: `${product.name} (${selectedColor}, ${selectedSize})`,
-    image: product.image,
-    price: product.price,
+    id: `${product.id}-${Object.values(selectedAttributes).join("-")}`,
+    name: `${product.name} ${Object.entries(selectedAttributes)
+      .map(([k, v]) => `(${k}: ${v})`)
+      .join(" ")}`,
+    image: activeImage,
+    price: activePrice,
     slug: product.slug,
     quantity,
   }
@@ -41,10 +69,9 @@ export default function ProductDetailClient({product}: {product: Product}) {
       description: (
         <div className="text-xs text-gray-600">
           Quantity: <strong>{quantity}</strong> — Total:{" "}
-          <strong>${(product.price * quantity).toFixed(2)}</strong>
+          <strong>${(activePrice * quantity).toFixed(2)}</strong>
         </div>
       ),
-
       action: {
         label: "View cart",
         onClick: () => router.push("/cart"),
@@ -52,42 +79,48 @@ export default function ProductDetailClient({product}: {product: Product}) {
     })
   }
 
-  if (loading) {
-    return <ProductDetailSkeleton />
-  }
+  if (loading) return <ProductDetailSkeleton />
 
   return (
     <main className="container mx-auto flex flex-col gap-6 px-4 py-8 md:px-8 lg:px-16">
       <BreadcrumbBar product={product} />
+
       <div>
         <h1 className="text-3xl font-bold">{product.name}</h1>
         <p className="text-gray-600">{product.description}</p>
-        <RatingStars
-          rating={product.rating || 0}
-          count={product.reviews?.length}
-          size="sm"
-        />
+        <RatingStars rating={0} count={0} size="sm" />
       </div>
+
       <div className="flex flex-col gap-10">
         <ProductInfoSection
-          product={product}
-          mainImage={mainImage}
+          product={{
+            ...product,
+            details: product.description ?? "",
+            image: product.images?.[0]?.url ?? "",
+            category: product.Category?.name ?? "",
+          }}
+          mainImage={activeImage}
           setMainImage={setMainImage}
-          selectedColor={selectedColor}
-          setSelectedColor={setSelectedColor}
-          selectedSize={selectedSize}
-          setSelectedSize={setSelectedSize}
           quantity={quantity}
           setQuantity={setQuantity}
+          selectedAttributes={selectedAttributes}
+          setSelectedAttributes={setSelectedAttributes}
+          attributeFields={allAttributeFields}
           handleAddToCart={handleAddToCart}
+          selectedVariant={selectedVariant}
+        />
+
+        <Separator />
+        <ProductDestailsSection
+          product={{
+            ...product,
+            details: product.description ?? "",
+            image: product.images?.[0]?.url ?? "",
+            category: product.Category?.name ?? "",
+          }}
         />
         <Separator />
-        <ProductDestailsSection product={product} />
-        <Separator />
-        <ProductReviewsSection
-          reviews={product.reviews}
-          rating={product.rating as number}
-        />
+        <ProductReviewsSection reviews={[]} rating={0} />
       </div>
     </main>
   )

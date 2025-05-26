@@ -78,12 +78,12 @@
   transition: opacity 0.5s;
 }
 .carousel-product .list .item .introduce .title {
-  font-size: 2em;
+  font-size: 1.5em;
   font-weight: 500;
   line-height: 1em;
 }
 .carousel-product .list .item .introduce .topic {
-  font-size: 4em;
+  font-size: 3em;
   font-weight: 500;
 }
 .carousel-product .list .item .introduce .des {
@@ -250,7 +250,7 @@
   pointer-events: auto;
 }
 .carousel-product.showDetail .list .item:nth-child(2) .detail .title {
-  font-size: 4em;
+  font-size: 3em;
 }
 .carousel-product.showDetail .list .item:nth-child(2) .detail .specifications {
   display: flex;

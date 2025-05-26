@@ -1,17 +1,28 @@
 "use client"
 
-import ProductForm from "@/components/admin/product/product-form/ProductForm"
-import {ProductFormType} from "@/schemas/product.schema"
+import ProductForm from "@/components/admin/product/form/ProductForm"
+import {useCreateProduct} from "@/hooks/products/useCreateProduct"
+import {useAppToast} from "@/hooks/useAppToast"
+import {useRouter} from "next/navigation"
 
-// async function simulateDelay(ms: number) {
-//   return new Promise((resolve) => setTimeout(resolve, ms))
-// }
-
-export default function AddProductPage() {
-  const handleAddProduct = (data: ProductFormType) => {
-    // Here you would typically send the data to your API to create a new product
-    console.log("Product data submitted:", data)
-    // You can also show a success message or redirect the user after submission
+export default function Page() {
+  const notify = useAppToast()
+  const router = useRouter()
+  const {mutateAsync: createProduct} = useCreateProduct()
+  const handleAddProduct = async (data: FormData) => {
+    try {
+      await createProduct(data)
+      notify({
+        message: "Product successfully created!",
+        type: "success",
+      })
+      router.push("/admin/products")
+    } catch (error) {
+      notify({
+        message: (error as Error).message || "Failed to create product",
+        type: "error",
+      })
+    }
   }
 
   return <ProductForm onSubmitHandler={handleAddProduct} mode="add" />

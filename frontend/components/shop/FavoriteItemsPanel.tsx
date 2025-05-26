@@ -2,7 +2,7 @@
 
 import {useFavoritesStore} from "@/store/favoritesStore"
 import {FaRegHeart} from "react-icons/fa"
-import ItemSheetPanel from "../ItemSheetPanel "
+import ItemSheetPanel from "../ItemSheetPanel"
 
 export default function FavoriteItemsPanel() {
   const {favorites, removeFavorite} = useFavoritesStore()

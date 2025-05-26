@@ -41,7 +41,7 @@ import {
 import {Input} from "@/components/ui/input"
 import {cn} from "@/lib/utils"
 
-interface DataTableProps<TData extends {id: string}, TValue> {
+interface DataTableProps<TData extends {slug: string}, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   pageSize?: number
@@ -49,10 +49,10 @@ interface DataTableProps<TData extends {id: string}, TValue> {
   enableRowSelection?: boolean
   searchableColumns?: (keyof TData)[]
   otherComponents?: React.ReactNode
-  noResults: React.ReactNode
+  noResults?: React.ReactNode
 }
 
-export function DataTable<TData extends {id: string}, TValue>({
+export function DataTable<TData extends {slug: string}, TValue>({
   columns,
   data,
   pageSize = 10,
@@ -74,7 +74,7 @@ export function DataTable<TData extends {id: string}, TValue>({
   const table = useReactTable({
     data,
     columns,
-    getRowId: (row) => row.id,
+    getRowId: (row) => row.slug,
     state: {
       sorting,
       columnVisibility,
@@ -252,7 +252,7 @@ export function DataTable<TData extends {id: string}, TValue>({
             variant="destructive"
             size="sm"
             onClick={() => {
-              const idsToRemove = selectedRows.map((row) => row.original.id)
+              const idsToRemove = selectedRows.map((row) => row.original.slug)
               console.log("Delete selected IDs:", idsToRemove)
             }}
             className="flex items-center gap-2 shadow-sm "

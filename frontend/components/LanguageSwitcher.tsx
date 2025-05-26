@@ -14,11 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import {IoLanguage} from "react-icons/io5"
 import {useTranslations} from "next-intl"
-
-const languages = [
-  {code: "en", label: "English", flag: "🇬🇧", shortcut: "EN"},
-  {code: "de", label: "Deutsch", flag: "🇩🇪", shortcut: "DE"},
-]
+import {languages} from "@/i18n/languages"
 
 const LanguageSwitcher = () => {
   const pathname = usePathname()!

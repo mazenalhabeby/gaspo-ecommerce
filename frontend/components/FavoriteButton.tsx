@@ -5,13 +5,17 @@ import {useFavoritesStore} from "@/store/favoritesStore"
 import {cn} from "@/lib/utils"
 import {Product} from "@/data/products"
 
-type Props = {
+type FavoriteButtonProps = {
   productId: string
   product: Product
   className?: string
 }
 
-export default function FavoriteButton({productId, product, className}: Props) {
+export default function FavoriteButton({
+  productId,
+  product,
+  className,
+}: FavoriteButtonProps) {
   const toggleFavorite = useFavoritesStore((s) => s.toggleFavorite)
   const isFavorite = useFavoritesStore((s) => s.isFavorite(productId))
 

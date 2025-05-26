@@ -1,121 +1,115 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-  ConflictException,
-} from '@nestjs/common';
-
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from 'src/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
-import { Category } from '@Prisma/client';
-import { PrismaService } from 'src/common';
+import { handlePrismaError } from 'src/common/utils/handle-prisma-error';
+import { DeleteObjectCommand, S3Client } from '@aws-sdk/client-s3';
 
 @Injectable()
 export class CategoriesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    @Inject('S3_CLIENT') private readonly s3: S3Client,
+  ) {}
 
-  /**
-   * Creates a new category in the database.
-   *
-   * @param dto - The data transfer object containing the details of the category to be created.
-   * @returns A promise that resolves to the created `Category` object.
-   * @throws ConflictException - If a category with the same name already exists.
-   * @throws BadRequestException - If the category could not be created due to other reasons.
-   */
-  async create(dto: CreateCategoryDto): Promise<Category> {
+  async create(dto: CreateCategoryDto, imageUrl?: string) {
     try {
-      return await this.prisma.category.create({
-        data: { name: dto.name },
+      const category = await this.prisma.category.create({
+        data: { ...dto, imageUrl },
       });
-    } catch (error: unknown) {
-      if (
-        typeof error === 'object' &&
-        error !== null &&
-        'code' in error &&
-        (error as { code?: string }).code === 'P2002' &&
-        (
-          error as { code?: string; meta?: { target?: string[] } }
-        ).meta?.target?.includes('name')
-      ) {
-        throw new ConflictException('Category name must be unique');
-      }
-      throw new BadRequestException('Could not create category');
+      return category;
+    } catch (error: any) {
+      throw handlePrismaError(error, 'category');
     }
   }
 
-  /**
-   * Updates an existing category with the provided data.
-   *
-   * @param id - The unique identifier of the category to update.
-   * @param dto - The data transfer object containing the updated category details.
-   * @returns A promise that resolves to the updated category.
-   * @throws NotFoundException - If the category with the given ID does not exist.
-   * @throws BadRequestException - If the category could not be updated due to invalid data or other issues.
-   */
-  async update(id: string, dto: UpdateCategoryDto): Promise<Category> {
-    const exists = await this.prisma.category.findUnique({ where: { id } });
-    if (!exists) throw new NotFoundException('Category not found');
-
-    try {
-      return await this.prisma.category.update({
-        where: { id },
-        data: { ...dto },
-      });
-    } catch {
-      throw new BadRequestException('Could not update category');
-    }
+  async findAll() {
+    const categories = await this.prisma.category.findMany({
+      include: { _count: { select: { products: true } } },
+    });
+    return categories;
   }
 
-  /**
-   * Deletes a category by its unique identifier.
-   *
-   * @param id - The unique identifier of the category to delete.
-   * @returns A promise that resolves when the category is successfully deleted.
-   * @throws {NotFoundException} If the category with the given ID does not exist.
-   * @throws {BadRequestException} If the category contains associated products and cannot be deleted.
-   */
-  async delete(id: string): Promise<{ id: string }> {
+  async findOne(slug: string) {
     const category = await this.prisma.category.findUnique({
-      where: { id },
+      where: { slug },
       include: { products: true },
     });
+    if (!category) throw new NotFoundException('Category not found');
+    return category;
+  }
 
-    if (!category) {
+  async update(slug: string, dto: UpdateCategoryDto, newImageUrl?: string) {
+    const existing = await this.prisma.category.findUnique({ where: { slug } });
+
+    if (!existing) {
       throw new NotFoundException('Category not found');
     }
 
-    if (category.products.length > 0) {
-      throw new BadRequestException('Cannot delete category with products');
+    if (existing.imageUrl && newImageUrl && existing.imageUrl !== newImageUrl) {
+      await this.deleteIfExists(existing.imageUrl);
     }
 
-    const deleted = await this.prisma.category.delete({ where: { id } });
-    return { id: deleted.id };
+    try {
+      const updated = await this.prisma.category.update({
+        where: { slug },
+        data: {
+          ...dto,
+          imageUrl: newImageUrl ?? existing.imageUrl,
+        },
+      });
+      return updated;
+    } catch (error) {
+      throw handlePrismaError(error, 'category');
+    }
   }
 
-  /**
-   * Retrieves all categories from the database, including their associated products.
-   *
-   * @returns {Promise<Category[]>} A promise that resolves to an array of categories,
-   * each including their related products.
-   */
-  async findAll(): Promise<Category[]> {
-    return this.prisma.category.findMany({ include: { products: true } });
-  }
-
-  /**
-   * Retrieves a single category by its unique identifier.
-   *
-   * @param id - The unique identifier of the category to retrieve.
-   * @returns A promise that resolves to the category object, including its associated products.
-   * @throws NotFoundException - If no category is found with the given identifier.
-   */
-  async findOne(id: string): Promise<Category> {
-    const category = await this.prisma.category.findUnique({
-      where: { id },
-      include: { products: true },
-    });
+  async remove(id: string) {
+    const category = await this.prisma.category.findUnique({ where: { id } });
 
     if (!category) throw new NotFoundException('Category not found');
-    return category;
+
+    if (category.imageUrl) {
+      await this.deleteIfExists(category.imageUrl);
+    }
+
+    return await this.prisma.category.delete({ where: { id } });
+  }
+
+  async removeMany(ids: string[]) {
+    const categories = await this.prisma.category.findMany({
+      where: { id: { in: ids } },
+    });
+
+    for (const category of categories) {
+      if (category.imageUrl) {
+        await this.deleteIfExists(category.imageUrl);
+      }
+    }
+
+    return this.prisma.category.deleteMany({
+      where: { id: { in: ids } },
+    });
+  }
+
+  private async deleteIfExists(imageUrl: string) {
+    const bucket = process.env.S3_BUCKET;
+    const s3BaseUrl = `https://${bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/`;
+
+    const key = imageUrl.replace(s3BaseUrl, '');
+
+    if (!key) return;
+
+    try {
+      await this.s3.send(
+        new DeleteObjectCommand({
+          Bucket: bucket,
+          Key: key,
+        }),
+      );
+      console.log(`✅ Deleted old image from S3: ${key}`);
+    } catch (error) {
+      console.error('❌ Failed to delete old image from S3:', error);
+    }
   }
 }

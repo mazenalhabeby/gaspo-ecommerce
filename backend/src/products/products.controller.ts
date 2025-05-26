@@ -1,35 +1,41 @@
-import { Controller, Post, Body, Put, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Param,
+  Body,
+  UploadedFiles,
+  UseInterceptors,
+} from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
-import { Product } from '@Prisma/client';
-import { UpdateProductDto } from './dto/update-product.dto';
+import { createS3Interceptor } from 'src/common/interceptors/create-s3.interceptor';
 
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Post()
-  async create(@Body() dto: CreateProductDto): Promise<Product> {
-    return await this.productsService.createProduct(dto);
+  @UseInterceptors(
+    createS3Interceptor('products', [{ name: 'images', maxCount: 10 }]),
+  )
+  create(
+    @UploadedFiles()
+    files: {
+      images?: Express.Multer.File[];
+    },
+    @Body() dto: CreateProductDto,
+  ) {
+    return this.productsService.create(dto, files);
   }
 
-  @Put(':id')
-  async update(
-    @Param('id') id: string,
-    @Body() dto: UpdateProductDto,
-  ): Promise<Product> {
-    return await this.productsService.updateProduct(id, dto);
+  @Get()
+  findAll() {
+    return this.productsService.findAll();
   }
 
-  @Put()
-  async updateMany(
-    @Body() updates: { id: string; data: UpdateProductDto }[],
-  ): Promise<Product[]> {
-    return await this.productsService.updateMany(updates);
-  }
-
-  @Delete(':id')
-  async delete(@Param('id') id: string): Promise<{ id: string }> {
-    return await this.productsService.deleteProduct(id);
+  @Get(':slug')
+  findOne(@Param('slug') slug: string) {
+    return this.productsService.findOne(slug);
   }
 }

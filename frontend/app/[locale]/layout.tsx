@@ -4,6 +4,7 @@ import {Toaster} from "@/components/ui/sonner"
 import "@/styles/globals.css"
 import {NextIntlClientProvider} from "next-intl"
 import {geistMono, geistSans, venusRising} from "../fonts"
+import ReactQueryProvider from "@/providers/ReactQueryProvider"
 
 export const metadata: Metadata = {
   title: "GASPO | Garden Furniture & Sports Equipment",
@@ -22,7 +23,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${venusRising.variable} antialiased`}
       >
         <NextIntlClientProvider>
-          {children}
+          <ReactQueryProvider>{children}</ReactQueryProvider>
           <Toaster />
         </NextIntlClientProvider>
       </body>

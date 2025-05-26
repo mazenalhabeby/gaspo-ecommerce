@@ -14,6 +14,7 @@ import {products} from "@/data/products"
 import {useRecentSearchStore} from "@/store/recentSearchStore"
 import Link from "next/link"
 import Image from "next/image"
+import {shoppingRoutes} from "@/lib/routes"
 
 export default function SearchCommand() {
   const [open, setOpen] = useState(false)
@@ -55,7 +56,7 @@ export default function SearchCommand() {
   const renderProductItem = (product: (typeof products)[number]) => (
     <CommandItem key={product.id} onSelect={() => handleSelect(product.id)}>
       <Link
-        href={`/shop/${product.slug}`}
+        href={shoppingRoutes.product(product.id)}
         className="flex items-center gap-3 w-full"
       >
         <Image

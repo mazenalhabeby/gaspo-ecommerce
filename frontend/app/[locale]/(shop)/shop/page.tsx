@@ -1,8 +1,7 @@
 "use client"
 
 import {useState, useMemo, useEffect} from "react"
-import {products as allProducts} from "@/data/products"
-import {useDelayedLoading} from "@/hooks/useDelayedLoading"
+import {useProducts} from "@/hooks/products/useCreateProduct"
 import HeaderSection from "@/components/sections/shop/HeaderSection"
 import CategoryFiltersSection from "@/components/sections/shop/CategoryFiltersSection"
 import ProductGridSection from "@/components/sections/shop/ProductGridSection"
@@ -12,15 +11,36 @@ const ITEMS_PER_PAGE = 6
 export default function ShopPage() {
   const [category, setCategory] = useState("All")
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE)
-  const [isStickySmall, setIsStickySmall] = useState(false)
-  const loading = useDelayedLoading(1500)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_isStickySmall, setIsStickySmall] = useState(false)
 
+  // Get products from backend
+  const {data: rawProducts, isLoading} = useProducts()
+
+  // Normalize products with fallback image
+  const products = useMemo(
+    () =>
+      rawProducts?.map((product) => ({
+        ...product,
+        imageUrl:
+          product.images?.find((img) => img.position === 0)?.url ??
+          product.images?.[0]?.url ??
+          "",
+        details: product.description ?? "", // fallback if missing
+        image: product.images?.[0]?.url ?? "", // fallback if missing
+        category: product.categoryId ?? "", // fallback if missing
+      })) ?? [],
+    [rawProducts]
+  )
+
+  // Filter products by selected category
   const filteredProducts = useMemo(() => {
     return category === "All"
-      ? allProducts
-      : allProducts.filter((p) => p.category === category)
-  }, [category])
+      ? products
+      : products.filter((p) => p.categoryId === category)
+  }, [category, products])
 
+  // Paginate visible products
   const visibleProducts = useMemo(() => {
     return filteredProducts.slice(0, visibleCount)
   }, [filteredProducts, visibleCount])
@@ -52,15 +72,15 @@ export default function ShopPage() {
       <CategoryFiltersSection
         category={category}
         setCategory={setCategory}
-        allProducts={allProducts}
-        isStickySmall={isStickySmall}
+        allProducts={products}
+        isStickySmall={false}
       />
       <ProductGridSection
-        loading={loading}
+        loading={isLoading}
         itemPerPage={ITEMS_PER_PAGE}
         visibleProducts={visibleProducts}
       />
-      {!loading && canLoadMore && (
+      {!isLoading && canLoadMore && (
         <div className="text-center mt-4">
           <button
             onClick={handleLoadMore}

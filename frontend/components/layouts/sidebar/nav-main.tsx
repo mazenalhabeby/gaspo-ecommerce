@@ -13,16 +13,17 @@ import {
 import Link from "next/link"
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover"
 import {PopoverClose} from "@radix-ui/react-popover"
+import {dashboardRoutes} from "@/lib/routes"
 
 const QuickCreateItems = [
   {
     title: "Product",
-    url: "/admin/products/create",
+    url: dashboardRoutes.productCreate,
     icon: PlusCircleIcon,
   },
   {
     title: "Category",
-    url: "/admin/categories/new-category",
+    url: dashboardRoutes.categoryCreate,
     icon: PlusCircleIcon,
   },
 ]

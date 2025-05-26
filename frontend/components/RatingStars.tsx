@@ -3,7 +3,7 @@
 import {cn} from "@/lib/utils"
 import {Star} from "lucide-react"
 
-type Props = {
+type RatingStarsProps = {
   rating: number
   count?: number
   showText?: boolean
@@ -19,7 +19,7 @@ export default function RatingStars({
   className,
   size = "md",
   variant = "default",
-}: Props) {
+}: RatingStarsProps) {
   const rounded = Math.round(rating)
   const textSize =
     size === "sm" ? "text-xs" : size === "lg" ? "text-lg" : "text-sm"

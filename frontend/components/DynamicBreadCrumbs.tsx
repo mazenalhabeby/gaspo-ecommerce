@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client"
 
 import React, {useEffect, useState} from "react"
@@ -5,47 +6,45 @@ import Link from "next/link"
 import {usePathname} from "next/navigation"
 import {ChevronRight} from "lucide-react"
 import {cn} from "@/lib/utils"
-import {dummyProducts} from "@/data/dummyProductData"
 
 interface BreadcrumbsProps {
   className?: string
+  resolveName?: (
+    slug: string
+  ) => Promise<string | undefined> | string | undefined
 }
 
-export function Breadcrumbs({className}: BreadcrumbsProps) {
+export function Breadcrumbs({className, resolveName}: BreadcrumbsProps) {
   const pathname = usePathname()
   const segments = pathname.split("/").filter(Boolean)
-  const [resolvedName, setResolvedName] = useState<string | null>(null)
+  const [resolvedNames, setResolvedNames] = useState<Record<string, string>>({})
 
-  // Get locale + cleaned path
+  // Remove locale (optional logic)
   const [locale, ...cleanedSegments] = segments
 
-  const isProductRoute = cleanedSegments.includes("products")
-  const idIndex = cleanedSegments.findIndex((seg) =>
-    /^prod_[a-zA-Z0-9]+$/.test(seg)
-  )
-
   useEffect(() => {
-    if (isProductRoute && idIndex !== -1) {
-      const productId = cleanedSegments[idIndex]
-      const product = dummyProducts.find((p) => p.id === productId)
-      if (product) setResolvedName(product.name)
+    const resolveAll = async () => {
+      if (!resolveName) return
+      const entries = await Promise.all(
+        cleanedSegments.map(async (seg) => {
+          const label = await resolveName(seg)
+          return label ? [seg, label] : null
+        })
+      )
+      const resolved = Object.fromEntries(
+        entries.filter(Boolean) as [string, string][]
+      )
+      setResolvedNames(resolved)
     }
-  }, [cleanedSegments, isProductRoute, idIndex])
+    resolveAll()
+  }, [pathname, resolveName])
 
   const breadcrumbSegments = cleanedSegments.map((seg, i) => {
     const href = "/" + cleanedSegments.slice(0, i + 1).join("/")
+    const label =
+      resolvedNames[seg] ?? (seg === "admin" ? "Dashboard" : beautify(seg))
 
-    let label = seg === "admin" ? "Dashboard" : beautify(seg)
-
-    // Replace only the product ID segment with the resolved product name
-    if (i === idIndex && resolvedName) {
-      label = resolvedName
-    }
-
-    return {
-      label,
-      href,
-    }
+    return {label, href}
   })
 
   return (
@@ -82,5 +81,5 @@ export function Breadcrumbs({className}: BreadcrumbsProps) {
 }
 
 function beautify(slug: string) {
-  return slug.replace(/[-_]/g, " ")
+  return slug.replace(/[-_]/g, " ").replace(/^\w/, (c) => c.toUpperCase())
 }

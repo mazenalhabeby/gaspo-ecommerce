@@ -10,6 +10,7 @@ import CartItemsSection from "@/components/sections/cart/CartItemsSection"
 import CartSummarySide from "@/components/sections/cart/CartSummarySide"
 import {useDelayedLoading} from "@/hooks/useDelayedLoading"
 import CartPageSkeleton from "@/components/loading/CartPageSkeleton"
+import {shoppingRoutes} from "@/lib/routes"
 
 export default function CartPage() {
   const {items, removeFromCart, setQuantity} = useCartStore()
@@ -41,7 +42,7 @@ export default function CartPage() {
           <FiShoppingCart className="text-gray-400 w-16 h-16" />
           <p className="text-gray-500 text-sm">No items in your cart yet.</p>
           <Link
-            href="/shop"
+            href={shoppingRoutes.shop}
             className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
           >
             Browse Products

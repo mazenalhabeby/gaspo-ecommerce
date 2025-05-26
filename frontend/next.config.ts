@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
       "via.placeholder.com",
       "picsum.photos",
       "https://source.unsplash.com",
+      "gaspotest.s3.eu-north-1.amazonaws.com",
     ],
   },
 }

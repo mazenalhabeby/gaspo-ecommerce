@@ -7,6 +7,7 @@ import {Product} from "@/data/products"
 import {Separator} from "../../ui/separator"
 import RatingStars from "../../RatingStars"
 import FavoriteButton from "../../FavoriteButton"
+import {shoppingRoutes} from "@/lib/routes"
 
 type Props = {
   product: Product
@@ -23,7 +24,7 @@ export default function ProductCard({product}: Props) {
     >
       {/* Product Image */}
       <Link
-        href={`/shop/${product.slug}`}
+        href={shoppingRoutes.product(product.slug)}
         aria-label={`View ${product.name}`}
         className="block overflow-hidden rounded-t-xl"
       >
@@ -43,7 +44,10 @@ export default function ProductCard({product}: Props) {
       <div className="p-4 flex flex-col justify-between min-h-[230px]">
         <header>
           <h3 className="text-lg font-semibold text-gray-900 line-clamp-1">
-            <Link href={`/shop/${product.slug}`} className="hover:underline">
+            <Link
+              href={shoppingRoutes.product(product.slug)}
+              className="hover:underline"
+            >
               {product.name}
             </Link>
           </h3>
@@ -63,7 +67,7 @@ export default function ProductCard({product}: Props) {
             </span>
             <div className="flex items-center space-x-4">
               <Link
-                href={`/shop/${product.slug}`}
+                href={shoppingRoutes.product(product.slug)}
                 className="bg-primary hover:bg-primary/90 text-white text-sm px-3 py-2 rounded"
               >
                 View Product

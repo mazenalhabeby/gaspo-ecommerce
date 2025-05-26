@@ -14,6 +14,12 @@ enum UserRole {
   GUEST
 }
 
+enum ProductStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
 enum OrderStatus {
   PENDING
   PAID
@@ -63,6 +69,13 @@ enum StockMovementType {
   OUT
 }
 
+enum WeightUnit {
+  KG
+  G
+  LB
+  OZ
+}
+
 enum ReturnStatus {
   PENDING
   APPROVED
@@ -104,6 +117,7 @@ model User {
   Notification      Notification[]
   createdAt         DateTime       @default(now())
   updatedAt         DateTime       @updatedAt
+  Product           Product[]
 }
 
 model Address {
@@ -125,11 +139,14 @@ model Product {
   name                String
   slug                String               @unique
   description         String
-  imageUrl            String
+  currency            String?              @default("EUR")
   price               Float
   stock               Int
+  weight              Int
+  weightUnit          WeightUnit           @default(KG)
   sku                 String?              @unique
   metadata            Json?
+  packages            Json?
   images              ProductImage[]
   reviews             Review[]
   variants            ProductVariant[]
@@ -143,7 +160,15 @@ model Product {
   categoryId          String?
   bundles             Product[]            @relation("BundleProducts")
   bundledIn           Product[]            @relation("BundleProducts")
+  bundleMetadata      Json?
   productDiscounts    ProductDiscount[]
+  status              ProductStatus        @default(DRAFT)
+  seoTitle            String?
+  seoDesc             String?
+  variantFields       String[]             @default([]) // e.g., ["size", "color"]
+  createdById         String?
+  createdBy           User?                @relation(fields: [createdById], references: [id])
+  pricingUnit         String? // e.g., "each", "kg", "box"
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
 }
@@ -162,25 +187,34 @@ model ProductDiscount {
 }
 
 model Category {
-  id       String    @id @default(cuid())
-  name     String    @unique
-  products Product[]
+  id          String     @id @default(cuid())
+  name        String     @unique
+  slug        String     @unique
+  description String
+  imageUrl    String?
+  parentId    String?
+  parent      Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  products    Product[]
+  children    Category[] @relation("CategoryHierarchy")
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 }
 
 model ProductVariant {
   id             String             @id @default(cuid())
   productId      String
   product        Product            @relation(fields: [productId], references: [id])
+  name           String
   slug           String             @unique
   sku            String?            @unique
   price          Float
   stock          Int
   metadata       Json?
   attributes     VariantAttribute[]
-  images         ProductImage[]
   StockMovements StockMovement[]
   createdAt      DateTime           @default(now())
   updatedAt      DateTime           @updatedAt
+  ProductImage   ProductImage[]
 }
 
 model VariantAttribute {

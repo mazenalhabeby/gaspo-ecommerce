@@ -1,7 +1,7 @@
 "use client"
 
 import {useCartStore} from "@/store/cartStore"
-import ItemSheetPanel from "../ItemSheetPanel "
+import ItemSheetPanel from "../ItemSheetPanel"
 import {FiShoppingCart} from "react-icons/fi"
 
 export default function CartItemsPanel() {

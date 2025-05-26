@@ -1,46 +1,78 @@
 import {
   Controller,
-  Post,
   Get,
-  Put,
-  Delete,
-  Param,
+  Post,
   Body,
-  HttpCode,
-  HttpStatus,
+  Patch,
+  Param,
+  Delete,
+  UseInterceptors,
+  UploadedFiles,
+  BadRequestException,
 } from '@nestjs/common';
-
+import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
-import { CategoriesService } from './categories.service';
+import { createS3Interceptor } from 'src/common/interceptors/create-s3.interceptor';
+import { DeleteCategoriesDto } from './dto/delete-caredories.dto';
 
 @Controller('categories')
 export class CategoriesController {
-  constructor(private readonly categoryService: CategoriesService) {}
+  constructor(private readonly categoriesService: CategoriesService) {}
 
   @Post()
-  @HttpCode(HttpStatus.CREATED)
-  create(@Body() dto: CreateCategoryDto) {
-    return this.categoryService.create(dto);
+  @UseInterceptors(
+    createS3Interceptor('categories', [{ name: 'image', maxCount: 1 }]),
+  )
+  create(
+    @UploadedFiles() files: { image?: Express.Multer.File[] },
+    @Body() dto: CreateCategoryDto,
+  ) {
+    const file = files.image?.[0];
+    if (!file) throw new BadRequestException('Image upload failed');
+
+    const s3File = file as Express.Multer.File & { location?: string };
+    if (typeof s3File.location !== 'string') {
+      throw new BadRequestException('Image upload failed: missing S3 location');
+    }
+
+    return this.categoriesService.create(dto, s3File.location);
   }
 
   @Get()
   findAll() {
-    return this.categoryService.findAll();
+    return this.categoriesService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.categoryService.findOne(id);
+  @Get(':slug')
+  findOne(@Param('slug') slug: string) {
+    return this.categoriesService.findOne(slug);
   }
 
-  @Put(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateCategoryDto) {
-    return this.categoryService.update(id, dto);
+  @Patch(':slug')
+  @UseInterceptors(
+    createS3Interceptor('categories', [{ name: 'image', maxCount: 1 }]),
+  )
+  async updateCategory(
+    @Param('slug') slug: string,
+    @UploadedFiles() files: { image?: Express.Multer.File[] },
+    @Body() dto: UpdateCategoryDto,
+  ) {
+    const newImage = files?.image?.[0] as Express.Multer.File & {
+      location?: string;
+    };
+    const newImageUrl = newImage?.location;
+
+    return this.categoriesService.update(slug, dto, newImageUrl);
   }
 
   @Delete(':id')
-  delete(@Param('id') id: string) {
-    return this.categoryService.delete(id);
+  remove(@Param('id') id: string) {
+    return this.categoriesService.remove(id);
+  }
+
+  @Delete()
+  removeMany(@Body() dto: DeleteCategoriesDto) {
+    return this.categoriesService.removeMany(dto.ids);
   }
 }

@@ -1,31 +1,30 @@
-import {useMemo, useRef, useState, useEffect} from "react"
-import {Product} from "@/data/products"
-import {LayoutGrid, LampDesk, Building2, Boxes} from "lucide-react"
+"use client"
+
+import {useRef, useState, useEffect} from "react"
+import {LayoutGrid} from "lucide-react"
+import {useCategories} from "@/hooks/categories/useCategories"
+import Image from "next/image"
 
 type Props = {
   selected: string
   onChange: (category: string) => void
-  products: Product[]
+  productCountByCategory: Record<string, number>
   compact?: boolean
 }
 
-const categoryIcons = {
-  All: <LayoutGrid size={22} />,
-  Furniture: <Building2 size={22} />,
-  Office: <LayoutGrid size={22} />,
-  Lighting: <LampDesk size={22} />,
-  Storage: <Boxes size={22} />,
-}
+const defaultIcon = <LayoutGrid size={22} />
 
 export default function ShopFilters({
   selected,
   onChange,
-  products,
+  productCountByCategory,
   compact = false,
 }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const [showLeftFade, setShowLeftFade] = useState(false)
   const [showRightFade, setShowRightFade] = useState(true)
+
+  const {data: categories = [], isLoading} = useCategories()
 
   const updateFade = () => {
     const el = scrollRef.current
@@ -42,25 +41,6 @@ export default function ShopFilters({
     return () => el.removeEventListener("scroll", updateFade)
   }, [])
 
-  const categories = useMemo(() => {
-    const grouped: Record<string, {description: string; count: number}> = {}
-    products.forEach((p) => {
-      if (!grouped[p.category]) {
-        grouped[p.category] = {
-          description: p.description.slice(0, 40) + "...",
-          count: 1,
-        }
-      } else {
-        grouped[p.category].count++
-      }
-    })
-
-    return [
-      {name: "All", description: "All products", count: products.length},
-      ...Object.entries(grouped).map(([name, data]) => ({name, ...data})),
-    ]
-  }, [products])
-
   return (
     <div className="relative w-full flex items-center justify-center">
       {showLeftFade && (
@@ -74,37 +54,63 @@ export default function ShopFilters({
         ref={scrollRef}
         className="flex gap-4 overflow-x-auto scrollbar-none scroll-smooth px-1 transition-all"
       >
-        {categories.map(({name, count}) => {
-          const isSelected = selected === name
-          const Icon =
-            categoryIcons[name as keyof typeof categoryIcons] ||
-            categoryIcons.All
+        <button
+          onClick={() => onChange("All")}
+          aria-pressed={selected === "All"}
+          className={`flex-shrink-0 flex flex-col items-center justify-center transition-all duration-300 ${
+            compact ? "w-20 h-24 text-xs" : "w-32 h-32"
+          } p-3 rounded-xl border shadow-sm ${
+            selected === "All"
+              ? "bg-primary text-white border-primary"
+              : "bg-white text-gray-800 hover:bg-gray-50"
+          }`}
+        >
+          <div className="mb-2">{defaultIcon}</div>
+          <p className="font-semibold">All</p>
+          <span
+            className={`text-xs ${
+              selected === "All" ? "text-gray-100" : "text-gray-500"
+            }`}
+          >
+            {Object.values(productCountByCategory).reduce((a, b) => a + b, 0)}{" "}
+            items
+          </span>
+        </button>
 
-          return (
+        {/* Dynamic categories */}
+        {!isLoading &&
+          categories.map((cat) => (
             <button
-              key={name}
-              onClick={() => onChange(name)}
-              aria-pressed={isSelected}
+              key={cat.id}
+              onClick={() => onChange(cat.id)}
+              aria-pressed={selected === cat.id}
               className={`flex-shrink-0 flex flex-col items-center justify-center transition-all duration-300 ${
                 compact ? "w-20 h-24 text-xs" : "w-32 h-32"
               } p-3 rounded-xl border shadow-sm ${
-                isSelected
+                selected === cat.id
                   ? "bg-primary text-white border-primary"
                   : "bg-white text-gray-800 hover:bg-gray-50"
               }`}
             >
-              <div className="mb-2">{Icon}</div>
-              <p className="font-semibold">{name}</p>
+              <div className="mb-2">
+                <Image
+                  src={cat.imageUrl || ""}
+                  alt={cat.name}
+                  width={100}
+                  height={100}
+                  className="w-10 h-10 object-cover rounded-full"
+                />
+              </div>
+              <p className="font-semibold">{cat.name}</p>
               <span
                 className={`${
-                  isSelected ? "text-gray-100" : "text-gray-500"
-                }  text-xs`}
+                  selected === cat.id ? "text-gray-100" : "text-gray-500"
+                } text-xs`}
               >
-                {count} items
+                {productCountByCategory[cat.id] || 0} items
               </span>
             </button>
-          )
-        })}
+          ))}
       </div>
     </div>
   )

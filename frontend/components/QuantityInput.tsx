@@ -2,7 +2,7 @@
 
 import {useState} from "react"
 
-type Props = {
+type QuantityInputProps = {
   quantity: number
   onChange: (newQty: number) => void
   label?: string
@@ -16,7 +16,7 @@ export default function QuantityInput({
   label = "Menge:",
   min = 1,
   max = 99,
-}: Props) {
+}: QuantityInputProps) {
   const [internalQty, setInternalQty] = useState(quantity)
 
   const updateQty = (newQty: number) => {

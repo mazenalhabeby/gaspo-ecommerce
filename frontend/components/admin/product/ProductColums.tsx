@@ -1,7 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 "use client"
 
-import {Product} from "@/types/types"
 import {ColumnDef} from "@tanstack/react-table"
 import {Checkbox} from "@/components/ui/checkbox"
 import {Button} from "@/components/ui/button"
@@ -15,6 +14,8 @@ import {
 } from "@/components/ui/dropdown-menu"
 import {MoreHorizontal} from "lucide-react"
 import Link from "next/link"
+import {dashboardRoutes} from "@/lib/routes"
+import {Product} from "@/lib/schemas/product.schema"
 
 export const ProductColumns: ColumnDef<Product>[] = [
   {
@@ -46,7 +47,7 @@ export const ProductColumns: ColumnDef<Product>[] = [
       const product = row.original
       return (
         <Link
-          href={`/admin/products/${product.id}`}
+          href={dashboardRoutes.product(product.slug)}
           className="flex items-center gap-3"
         >
           <img
@@ -87,10 +88,12 @@ export const ProductColumns: ColumnDef<Product>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem asChild>
-              <Link href={`/admin/products/${product.id}`}>View Product</Link>
+              <Link href={dashboardRoutes.product(product.slug)}>
+                View Product
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link href={`/admin/products/${product.id}/edit`}>
+              <Link href={dashboardRoutes.productEdit(product.slug)}>
                 Edit Product
               </Link>
             </DropdownMenuItem>

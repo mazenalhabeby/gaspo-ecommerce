@@ -1,59 +1,116 @@
-import {
-  IsString,
-  IsNumber,
-  IsInt,
-  IsOptional,
-  IsArray,
-  ValidateNested,
-  IsObject,
-} from 'class-validator';
-import { Type } from 'class-transformer';
+import { IsEnum, IsOptional, IsString, IsNumber } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
+import { WeightUnit } from '@Prisma/client';
 
-export class ProductImageDto {
-  @IsString() url: string;
-  @IsOptional() @IsString() altText?: string;
-  @IsOptional() @IsInt() position?: number;
+export class PackageDto {
+  @Transform(({ value }: { value: string }) => parseFloat(value), {
+    toClassOnly: true,
+  })
+  @IsNumber()
+  length: number;
+
+  @Transform(({ value }: { value: string }) => parseFloat(value), {
+    toClassOnly: true,
+  })
+  @IsNumber()
+  breadth: number;
+
+  @Transform(({ value }: { value: string }) => parseFloat(value), {
+    toClassOnly: true,
+  })
+  @IsNumber()
+  width: number;
+
+  @IsString()
+  unit: string; // Use string or create an enum if you want
 }
 
-export class ProductTranslationDto {
-  @IsString() language: string;
-  @IsString() name: string;
-  @IsString() description: string;
-  @IsOptional() @IsArray() descriptionJson?: any[];
-}
+export class VariantDto {
+  @IsOptional()
+  @IsString()
+  id?: string;
 
-export class ProductVariantDto {
-  @IsString() slug: string;
-  @IsOptional() @IsString() sku?: string;
-  @IsNumber() price: number;
-  @IsInt() stock: number;
+  @IsString()
+  slug: string;
+
+  @IsString()
+  name: string;
+
+  @IsString()
+  sku: string;
+
+  @Transform(({ value }: { value: string }) => parseFloat(value), {
+    toClassOnly: true,
+  })
+  @IsNumber()
+  price: number;
+
+  @Transform(({ value }: { value: string }) => parseInt(value, 10), {
+    toClassOnly: true,
+  })
+  @IsNumber()
+  stock: number;
+
+  @IsOptional()
+  attributes: Record<string, string>;
 }
 
 export class CreateProductDto {
-  @IsString() name: string;
-  @IsString() slug: string;
-  @IsString() description: string;
-  @IsString() imageUrl: string;
-  @IsNumber() price: number;
-  @IsInt() stock: number;
-  @IsOptional() @IsString() sku?: string;
-  @IsOptional() @IsObject() metadata?: Record<string, any>;
-  @IsOptional() @IsString() categoryId?: string;
-  @IsOptional() @IsArray() bundles?: string[];
+  @IsString()
+  name: string;
 
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => ProductImageDto)
-  images: ProductImageDto[];
+  @IsString()
+  slug: string;
 
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => ProductTranslationDto)
-  translations: ProductTranslationDto[];
+  @IsString()
+  description: string;
 
   @IsOptional()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => ProductVariantDto)
-  variants?: ProductVariantDto[];
+  @IsString()
+  seoTitle?: string;
+
+  @IsOptional()
+  @IsString()
+  seoDesc?: string;
+
+  @IsString()
+  categoryId: string;
+
+  @IsString()
+  currency: string;
+
+  @IsString()
+  sku: string;
+
+  @Transform(({ value }: { value: string }) => parseFloat(value), {
+    toClassOnly: true,
+  })
+  @IsNumber()
+  price: number;
+
+  @Transform(({ value }: { value: string }) => parseInt(value, 10), {
+    toClassOnly: true,
+  })
+  @IsNumber()
+  stock: number;
+
+  @Transform(({ value }: { value: string }) => parseFloat(value), {
+    toClassOnly: true,
+  })
+  @IsNumber()
+  weight: number;
+
+  @IsEnum(WeightUnit)
+  weightUnit: WeightUnit;
+
+  @IsString({ each: true })
+  variantFields: string[];
+
+  @IsOptional()
+  @Type(() => PackageDto)
+  packages?: PackageDto[];
+
+  @IsOptional()
+  @Type(() => VariantDto)
+  variants?: VariantDto[];
 }

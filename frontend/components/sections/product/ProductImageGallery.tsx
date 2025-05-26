@@ -26,6 +26,7 @@ export default function ProductImageGallery({
             className={`rounded-md cursor-pointer border ${
               mainImage === img ? "ring-2 ring-blue-600" : ""
             }`}
+            priority
           />
         ))}
       </div>
@@ -38,6 +39,7 @@ export default function ProductImageGallery({
           width={800}
           height={800}
           className="w-full h-auto object-cover rounded-lg"
+          priority
         />
       </div>
     </div>

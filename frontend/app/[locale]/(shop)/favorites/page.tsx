@@ -8,6 +8,7 @@ import {FaRegHeart} from "react-icons/fa6"
 import Link from "next/link"
 import {useDelayedLoading} from "@/hooks/useDelayedLoading"
 import FavoritesPageSkeleton from "@/components/loading/FavoritesPageSkeleton"
+import {shoppingRoutes} from "@/lib/routes"
 
 export default function FavoritesPage() {
   const {favorites, toggleFavorite} = useFavoritesStore()
@@ -27,7 +28,10 @@ export default function FavoritesPage() {
           <p className="text-gray-500 text-sm">
             No items in the favorites yet.
           </p>
-          <Link href="/shop" className="bg-blue-500 text-white p-2 rounded">
+          <Link
+            href={shoppingRoutes.shop}
+            className="bg-blue-500 text-white p-2 rounded"
+          >
             Browse Products
           </Link>
         </div>

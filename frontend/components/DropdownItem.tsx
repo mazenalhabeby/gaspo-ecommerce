@@ -1,7 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 
-type Props = {
+type DropdownItemProps = {
   id: string
   name: string
   image: string
@@ -20,7 +20,7 @@ export default function DropdownItem({
   onRemove,
   onQuantityChange,
   linkTo,
-}: Props) {
+}: DropdownItemProps) {
   const content = (
     <div className="flex items-center justify-between gap-4 p-2 my-2 border rounded hover:bg-gray-50 transition">
       <Image
