@@ -1,0 +1,77 @@
+import {
+  productImg01,
+  productImg02,
+  productImg03,
+  productImg04,
+  productImg05,
+  productImg06,
+  productImg07,
+} from "@/assets"
+
+export const ProductsData = [
+  {
+    id: 1,
+    image: productImg01,
+    title: "home.products.title",
+    topic: "home.products.product01.topic",
+    shortDescription: "home.products.product01.shortDescription",
+    fullTitle: "home.products.product01.fullTitle",
+    fullDescription: "home.products.product01.fullDescription",
+  },
+  {
+    id: 2,
+    image: productImg02,
+    title: "home.products.title",
+    topic: "home.products.product02.topic",
+    shortDescription: "home.products.product02.shortDescription",
+    fullTitle: "home.products.product02.fullTitle",
+    fullDescription: "home.products.product02.fullDescription",
+  },
+  {
+    id: 3,
+    image: productImg03,
+    title: "home.products.title",
+    topic: "home.products.product03.topic",
+    shortDescription: "home.products.product03.shortDescription",
+    fullTitle: "home.products.product03.fullTitle",
+    fullDescription: "home.products.product03.fullDescription",
+  },
+  {
+    id: 4,
+    image: productImg04,
+    title: "home.products.title",
+    topic: "home.products.product04.topic",
+    shortDescription: "home.products.product04.shortDescription",
+    fullTitle: "home.products.product04.fullTitle",
+    fullDescription: "home.products.product04.fullDescription",
+  },
+  {
+    id: 5,
+    image: productImg05,
+    title: "home.products.title",
+    topic: "home.products.product05.topic",
+    shortDescription: "home.products.product05.shortDescription",
+    fullTitle: "home.products.product05.fullTitle",
+    fullDescription: "home.products.product05.fullDescription",
+  },
+  {
+    id: 6,
+    image: productImg06,
+    title: "home.products.title",
+    topic: "home.products.product06.topic",
+    shortDescription: "home.products.product06.shortDescription",
+    fullTitle: "home.products.product06.fullTitle",
+    fullDescription: "home.products.product06.fullDescription",
+  },
+  {
+    id: 7,
+    image: productImg07,
+    title: "home.products.title",
+    topic: "home.products.product07.topic",
+    shortDescription: "home.products.product07.shortDescription",
+    fullTitle: "home.products.product07.fullTitle",
+    fullDescription: "home.products.product07.fullDescription",
+  },
+]
+
+export type ProductDataType = (typeof ProductsData)[number]
