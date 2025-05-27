@@ -11,14 +11,14 @@ import {
   UseFormSetValue,
   UseFormGetValues,
 } from "react-hook-form"
-import {ProductFormType} from "@/lib/schemas/product.schema"
+import {ProductResponse} from "@/lib/schemas/product.schema"
 import VariantFieldDialog from "./VariantFieldDialog"
 
 interface VariantManagerProps {
   currency: string
-  control: Control<ProductFormType>
-  setValue: UseFormSetValue<ProductFormType>
-  getValues: UseFormGetValues<ProductFormType>
+  control: Control<ProductResponse>
+  setValue: UseFormSetValue<ProductResponse>
+  getValues: UseFormGetValues<ProductResponse>
 }
 
 export default function VariantManager({
@@ -35,9 +35,20 @@ export default function VariantManager({
   const variantFields = getValues("variantFields")
 
   const addVariant = () => {
-    const defaultAttrs = Object.fromEntries(variantFields.map((f) => [f, ""]))
+    const defaultAttrs: {id: string; name: string; value: string}[] =
+      variantFields.map((f: string) => ({
+        id: crypto.randomUUID
+          ? crypto.randomUUID()
+          : Math.random().toString(36).substring(2),
+        name: f,
+        value: "",
+      }))
     append({
+      id: crypto.randomUUID
+        ? crypto.randomUUID()
+        : Math.random().toString(36).substring(2),
       name: "",
+      slug: "",
       sku: "",
       price: 0,
       stock: 0,
@@ -55,14 +66,44 @@ export default function VariantManager({
               const updatedFields = [...variantFields, newField]
               setValue("variantFields", updatedFields)
 
-              const variants = getValues("variants") || []
-              const updatedVariants = variants.map((v) => ({
-                ...v,
-                attributes: {
-                  ...v.attributes,
-                  [newField]: "",
-                },
-              }))
+              // Ensure sku is always a string and attributes is an array of {id, name, value}
+              const variantsRaw: NonNullable<ProductResponse["variants"]> =
+                getValues("variants") || []
+              const updatedVariants = variantsRaw.map((v) => {
+                // Convert attributes array to a map for easier update
+                const attrArray: {id: string; name: string; value: string}[] =
+                  v.attributes ?? []
+                const attrMap: Record<
+                  string,
+                  {id: string; name: string; value: string}
+                > = {}
+                attrArray.forEach((attr) => {
+                  attrMap[attr.name] = attr
+                })
+                // Add new attribute if not present
+                if (!attrMap[newField]) {
+                  attrMap[newField] = {
+                    id: crypto.randomUUID
+                      ? crypto.randomUUID()
+                      : Math.random().toString(36).substring(2),
+                    name: newField,
+                    value: "",
+                  }
+                }
+                // Convert back to array
+                const newAttrArray = Object.values(attrMap)
+                return {
+                  ...v,
+                  id:
+                    v.id ??
+                    (crypto.randomUUID
+                      ? crypto.randomUUID()
+                      : Math.random().toString(36).substring(2)),
+                  slug: v.slug ?? "",
+                  sku: v.sku ?? "",
+                  attributes: newAttrArray,
+                }
+              })
               setValue("variants", updatedVariants)
             }}
           />
@@ -83,26 +124,38 @@ export default function VariantManager({
                 )}
               />
             </div>
-
-            {variantFields.map((vf) => (
-              <div key={vf} className="space-y-1">
-                <Label>{vf}</Label>
-                <Controller
-                  control={control}
-                  name={`variants.${index}.attributes.${vf}`}
-                  render={({field}) => (
-                    <Input placeholder={`Enter ${vf}`} {...field} />
-                  )}
-                />
-              </div>
-            ))}
+            {fields[index]?.attributes?.map(
+              (
+                attr: {id: string; name: string; value: string},
+                attrIndex: number
+              ) => (
+                <div key={attr.id} className="space-y-1">
+                  <Label>{attr.name}</Label>
+                  <Controller
+                    control={control}
+                    name={
+                      `variants.${index}.attributes.${attrIndex}.value` as const
+                    }
+                    render={({field}) => (
+                      <Input placeholder={`Enter ${attr.name}`} {...field} />
+                    )}
+                  />
+                </div>
+              )
+            )}
 
             <div className="space-y-1">
               <Label>SKU</Label>
               <Controller
                 control={control}
                 name={`variants.${index}.sku`}
-                render={({field}) => <Input placeholder="SKU" {...field} />}
+                render={({field}) => (
+                  <Input
+                    placeholder="SKU"
+                    {...field}
+                    value={field.value ?? ""}
+                  />
+                )}
               />
             </div>
 

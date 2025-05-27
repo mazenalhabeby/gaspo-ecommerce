@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
 
 import {useState, useMemo} from "react"
@@ -5,7 +6,7 @@ import {useCartStore} from "@/store/cartStore"
 import {Separator} from "../../ui/separator"
 import {toast} from "sonner"
 import {useRouter} from "next/navigation"
-import ProductInfoSection from "./ProductInfoSection"
+
 import ProductDestailsSection from "./ProductDestailsSection"
 import ProductReviewsSection from "./ProductReviewsSection"
 import BreadcrumbBar from "./BreadcrumbBar"
@@ -92,7 +93,7 @@ export default function ProductDetailClient({product}: Props) {
       </div>
 
       <div className="flex flex-col gap-10">
-        <ProductInfoSection
+        {/* <ProductInfoSection
           product={{
             ...product,
             details: product.description ?? "",
@@ -103,12 +104,10 @@ export default function ProductDetailClient({product}: Props) {
           setMainImage={setMainImage}
           quantity={quantity}
           setQuantity={setQuantity}
-          selectedAttributes={selectedAttributes}
-          setSelectedAttributes={setSelectedAttributes}
           attributeFields={allAttributeFields}
           handleAddToCart={handleAddToCart}
           selectedVariant={selectedVariant}
-        />
+        /> */}
 
         <Separator />
         <ProductDestailsSection

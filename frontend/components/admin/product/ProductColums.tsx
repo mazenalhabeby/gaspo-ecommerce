@@ -15,9 +15,9 @@ import {
 import {MoreHorizontal} from "lucide-react"
 import Link from "next/link"
 import {dashboardRoutes} from "@/lib/routes"
-import {Product} from "@/lib/schemas/product.schema"
+import {Products} from "@/lib/schemas/product.schema"
 
-export const ProductColumns: ColumnDef<Product>[] = [
+export const ProductColumns: ColumnDef<Products>[] = [
   {
     id: "select",
     header: ({table}) => (

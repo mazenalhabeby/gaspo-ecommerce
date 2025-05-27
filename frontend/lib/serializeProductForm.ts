@@ -1,14 +1,16 @@
 // lib/utils/serializeProductForm.ts
 
-import {Product} from "@/lib/types/dummyProductdata"
-
-export function serializeProductToFormData(data: Product): FormData {
+export function serializeProductToFormData(data: unknown): FormData {
   const formData = new FormData()
   const jsonKeys = ["packages", "variantFields", "variants"]
   const imageKeys = ["images"]
   const excludedKeys = ["primaryImage"]
 
-  for (const [key, value] of Object.entries(data)) {
+  if (typeof data !== "object" || data === null) {
+    throw new Error("Input data must be a non-null object")
+  }
+
+  for (const [key, value] of Object.entries(data as Record<string, unknown>)) {
     if (excludedKeys.includes(key)) continue
 
     if (imageKeys.includes(key)) {

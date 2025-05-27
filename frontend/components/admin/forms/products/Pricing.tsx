@@ -10,12 +10,12 @@ import {
   SelectItem,
 } from "@/components/ui/select"
 import {UseFormSetValue, UseFormWatch} from "react-hook-form"
-import {ProductFormType} from "@/lib/schemas/product.schema"
+import {ProductResponse} from "@/lib/schemas/product.schema"
 import RequiredMark from "@/components/RequiredMark"
 
 interface PricingProps {
-  setValue: UseFormSetValue<ProductFormType>
-  watch: UseFormWatch<ProductFormType>
+  setValue: UseFormSetValue<ProductResponse>
+  watch: UseFormWatch<ProductResponse>
 }
 
 export default function Pricing({setValue, watch}: PricingProps) {

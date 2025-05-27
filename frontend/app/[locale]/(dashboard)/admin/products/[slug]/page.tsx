@@ -71,7 +71,7 @@ export default function ProductPage({
                   </p>
                 </div>
 
-                {product.packages?.length > 0 && (
+                {/* {product.packages?.length > 0 && (
                   <div className="space-y-2">
                     <p className="text-sm font-medium text-muted-foreground">
                       Package Dimensions:
@@ -111,7 +111,7 @@ export default function ProductPage({
                       )}
                     </div>
                   </div>
-                )}
+                )} */}
               </div>
             </div>
 

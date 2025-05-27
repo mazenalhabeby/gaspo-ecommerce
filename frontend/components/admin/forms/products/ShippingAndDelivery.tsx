@@ -18,17 +18,16 @@ import {
   useFieldArray,
   Control,
 } from "react-hook-form"
-import {ProductFormType} from "@/lib/schemas/product.schema"
+import {ProductResponse} from "@/lib/schemas/product.schema"
 
 interface ShippingAndDeliveryProps {
-  register: UseFormRegister<ProductFormType>
-  setValue: UseFormSetValue<ProductFormType>
-  watch: UseFormWatch<ProductFormType>
-  control: Control<ProductFormType>
+  register: UseFormRegister<ProductResponse>
+  setValue: UseFormSetValue<ProductResponse>
+  watch: UseFormWatch<ProductResponse>
+  control: Control<ProductResponse>
 }
 
 export default function ShippingAndDelivery({
-  register,
   setValue,
   watch,
   control,
@@ -38,7 +37,7 @@ export default function ShippingAndDelivery({
 
   const {
     fields: packages,
-    append,
+
     remove,
     update,
   } = useFieldArray({
@@ -108,7 +107,7 @@ export default function ShippingAndDelivery({
               key={pkg.id}
               className="grid grid-cols-4 gap-2 items-end relative"
             >
-              {(["length", "breadth", "width"] as const).map((field) => (
+              {/* {(["length", "breadth", "width"] as const).map((field) => (
                 <div key={field} className="space-y-1">
                   <Label className="text-sm text-muted-foreground capitalize">
                     {field}
@@ -119,7 +118,7 @@ export default function ShippingAndDelivery({
                     {...register(`packages.${index}.${field}` as const)}
                   />
                 </div>
-              ))}
+              ))} */}
 
               <div className="space-y-1">
                 <Label className="text-sm text-muted-foreground">Unit</Label>
@@ -156,7 +155,7 @@ export default function ShippingAndDelivery({
             </div>
           ))}
 
-          <Button
+          {/* <Button
             variant="outline"
             type="button"
             size="sm"
@@ -166,7 +165,7 @@ export default function ShippingAndDelivery({
             className="text-primary hover:text-primary/90 mt-2"
           >
             + Add Another Package
-          </Button>
+          </Button> */}
         </div>
       </div>
     </div>

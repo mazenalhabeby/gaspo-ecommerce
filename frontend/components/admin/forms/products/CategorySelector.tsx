@@ -7,7 +7,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import {UseFormSetValue, UseFormWatch} from "react-hook-form"
-import {ProductFormType} from "@/lib/schemas/product.schema"
+import {ProductResponse} from "@/lib/schemas/product.schema"
 import RequiredMark from "@/components/RequiredMark"
 import Link from "next/link"
 import {PlusCircleIcon} from "lucide-react"
@@ -18,8 +18,8 @@ interface CategorySelectorProps {
     id: string
     name: string
   }[]
-  setValue: UseFormSetValue<ProductFormType>
-  watch: UseFormWatch<ProductFormType>
+  setValue: UseFormSetValue<ProductResponse>
+  watch: UseFormWatch<ProductResponse>
 }
 
 export default function CategorySelector({
@@ -38,7 +38,7 @@ export default function CategorySelector({
             Product Category <RequiredMark style="star" />
           </Label>
           <Select
-            value={selectedCategory}
+            value={selectedCategory ?? undefined}
             onValueChange={(val) => setValue("categoryId", val)}
           >
             <SelectTrigger className="w-full">

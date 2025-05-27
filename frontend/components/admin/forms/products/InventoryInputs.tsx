@@ -1,13 +1,13 @@
 "use client"
 
 import {Input} from "@/components/ui/input"
-import {ProductFormType} from "@/lib/schemas/product.schema"
+import {ProductResponse} from "@/lib/schemas/product.schema"
 import {UseFormRegister} from "react-hook-form"
 import {Label} from "@/components/ui/label"
 import RequiredMark from "@/components/RequiredMark"
 
 interface InventoryInputsProps {
-  register: UseFormRegister<ProductFormType>
+  register: UseFormRegister<ProductResponse>
 }
 
 export default function InventoryInputs({register}: InventoryInputsProps) {

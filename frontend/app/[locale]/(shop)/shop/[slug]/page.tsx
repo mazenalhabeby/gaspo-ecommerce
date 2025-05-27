@@ -16,5 +16,8 @@ export default function ProductDetailPage({
   if (isLoading) {
     return <div>Loading...</div>
   }
+  if (!product) {
+    return <div>Product not found.</div>
+  }
   return <ProductDetailClient product={product} />
 }

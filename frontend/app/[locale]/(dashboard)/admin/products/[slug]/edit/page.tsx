@@ -43,7 +43,14 @@ function mapProductToForm(product: ExtendedProduct): ProductResponse {
     weight: 0,
     weightUnit: "kg",
     packages: product.packages
-      ? [{length: "", breadth: "", width: "", unit: "in"}]
+      ? product.packages.map((pkg, idx) => ({
+          id: `pkg-${idx}`,
+          weight: 0,
+          length: Number(pkg.length) || 0,
+          breadth: Number(pkg.breadth) || 0,
+          width: Number(pkg.width) || 0,
+          unit: pkg.unit,
+        }))
       : [],
     images: product.images ?? [],
     variants:

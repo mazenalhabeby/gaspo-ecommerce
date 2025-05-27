@@ -2,6 +2,15 @@
 import * as z from "zod"
 import {categoryResponseSchema} from "./category.schema"
 
+export const productPackageSchema = z.object({
+  id: z.string(),
+  weight: z.number(),
+  width: z.number(),
+  breadth: z.number(),
+  length: z.number(),
+  unit: z.enum(["in", "mm", "m"]),
+})
+
 export const productImageSchema = z.object({
   id: z.string(),
   url: z.string().url(),
@@ -38,7 +47,7 @@ export const productResponseSchema = z.object({
   weightUnit: z.string(),
   sku: z.string().nullable(),
   metadata: z.any().nullable(),
-  packages: z.any(),
+  packages: z.array(productPackageSchema).optional(),
   bundleMetadata: z.any().nullable(),
   status: z.string(),
   seoTitle: z.string().nullable(),
