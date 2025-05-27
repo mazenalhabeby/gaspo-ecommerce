@@ -24,6 +24,7 @@ import paypal from "./images/paypal.jpg"
 import sofort from "./images/sofort.jpg"
 import state from "./images/state.png"
 import vorkasse from "./images/vorkasse.jpg"
+import notFoundBg from "./images/not-found-bg.jpg"
 
 export {
   christ,
@@ -52,4 +53,5 @@ export {
   sofort,
   state,
   vorkasse,
+  notFoundBg,
 }

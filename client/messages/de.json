@@ -1,4 +1,26 @@
 {
+  "common": {
+    "address": "Peiskam 6, 4694 Ohlsdorf, Austria",
+    "addressTitle": "Adresse",
+    "chooseLanguage": "Wählen Sie Ihre Sprache",
+    "contact": "+(43) 7612 472920",
+    "contactTitle": "Kontakt",
+    "email": "Office@gaspo.com",
+    "emailTitle": "E-Mail",
+    "since": "seit 1963"
+  },
+  "footer": {
+    "closedOnBridgeDays": "An Brückentagen geschlossen!",
+    "fastShipping": "Schneller Versand",
+    "friday": "Freitag: 08:00 - 12:00 Uhr",
+    "gaspo": "Gaspo",
+    "mondayToThursday": "Montag - Donnerstag: 08:00 - 15:00 Uhr",
+    "moneyBackGuarantee": "30-tägige Geld-zurück-Garantie",
+    "openingHours": "Öffnungszeiten",
+    "paymentMethods": "Zahlungsmethoden",
+    "safeShopping": "Sicheres Einkaufen",
+    "threeYearWarranty": "3-Jahres-Garantie"
+  },
   "home": {
     "about": {
       "backgroundText": "Erfolg",
@@ -144,26 +166,9 @@
       "welcomeTitle": "Willkommen bei Gaspo"
     }
   },
-  "footer": {
-    "closedOnBridgeDays": "An Brückentagen geschlossen!",
-    "fastShipping": "Schneller Versand",
-    "friday": "Freitag: 08:00 - 12:00 Uhr",
-    "gaspo": "Gaspo",
-    "mondayToThursday": "Montag - Donnerstag: 08:00 - 15:00 Uhr",
-    "moneyBackGuarantee": "30-tägige Geld-zurück-Garantie",
-    "openingHours": "Öffnungszeiten",
-    "paymentMethods": "Zahlungsmethoden",
-    "safeShopping": "Sicheres Einkaufen",
-    "threeYearWarranty": "3-Jahres-Garantie"
-  },
-  "common": {
-    "address": "Peiskam 6, 4694 Ohlsdorf, Austria",
-    "addressTitle": "Adresse",
-    "chooseLanguage": "Wählen Sie Ihre Sprache",
-    "contact": "+(43) 7612 472920",
-    "contactTitle": "Kontakt",
-    "email": "Office@gaspo.com",
-    "emailTitle": "E-Mail",
-    "since": "seit 1963"
+  "notFound": {
+    "description": "Die Seite, nach der Sie suchen, gibt es nicht.",
+    "home": "Startseite",
+    "title": "Seite nicht gefunden"
   }
 }

@@ -1,7 +1,7 @@
 import React from "react"
 import "@/styles/slider.css"
 import "@/styles/product-slider.css"
-import Navbar from "@/components/nabvar/Navbar"
+import Navbar from "@/components/navbar/Navbar"
 import Footer from "@/components/Footer"
 
 export default function HomeLayout({children}: {children: React.ReactNode}) {

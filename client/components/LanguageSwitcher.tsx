@@ -29,6 +29,7 @@ const LanguageSwitcher = () => {
     const newPath = segments.join("/")
     document.cookie = `NEXT_LOCALE=${locale}; path=/`
     router.push(newPath)
+    router.refresh()
   }
 
   const currentLang =
