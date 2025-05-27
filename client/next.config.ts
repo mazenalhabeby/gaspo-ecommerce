@@ -1,10 +1,7 @@
-import type {NextConfig} from "next"
-import withNextIntl from "next-intl/plugin"
+import {NextConfig} from "next"
+import createNextIntlPlugin from "next-intl/plugin"
 
-const withIntl = withNextIntl("./next-intl.config.ts")
+const nextConfig: NextConfig = {}
 
-const nextConfig: NextConfig = {
-  /* config options here */
-}
-
-export default withIntl(nextConfig)
+const withNextIntl = createNextIntlPlugin()
+export default withNextIntl(nextConfig)
