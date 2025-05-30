@@ -13,7 +13,7 @@ import {
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
-import { createS3Interceptor } from 'src/common/interceptors/create-s3.interceptor';
+import { S3Interceptor } from 'src/common/interceptors/s3.interceptor';
 import { DeleteCategoriesDto } from './dto/delete-caredories.dto';
 
 @Controller('categories')
@@ -22,7 +22,7 @@ export class CategoriesController {
 
   @Post()
   @UseInterceptors(
-    createS3Interceptor('categories', [{ name: 'image', maxCount: 1 }]),
+    S3Interceptor('categories', [{ name: 'image', maxCount: 1 }]),
   )
   create(
     @UploadedFiles() files: { image?: Express.Multer.File[] },
@@ -35,7 +35,6 @@ export class CategoriesController {
     if (typeof s3File.location !== 'string') {
       throw new BadRequestException('Image upload failed: missing S3 location');
     }
-
     return this.categoriesService.create(dto, s3File.location);
   }
 
@@ -51,18 +50,19 @@ export class CategoriesController {
 
   @Patch(':slug')
   @UseInterceptors(
-    createS3Interceptor('categories', [{ name: 'image', maxCount: 1 }]),
+    S3Interceptor('categories', [{ name: 'image', maxCount: 1 }]),
   )
   async updateCategory(
     @Param('slug') slug: string,
     @UploadedFiles() files: { image?: Express.Multer.File[] },
     @Body() dto: UpdateCategoryDto,
   ) {
-    const newImage = files?.image?.[0] as Express.Multer.File & {
+    // ✅ this is safe even if files.image is undefined
+    const file = files?.image?.[0] as Express.Multer.File & {
       location?: string;
     };
-    const newImageUrl = newImage?.location;
 
+    const newImageUrl = file?.location; // may be undefined
     return this.categoriesService.update(slug, dto, newImageUrl);
   }
 
@@ -73,6 +73,7 @@ export class CategoriesController {
 
   @Delete()
   removeMany(@Body() dto: DeleteCategoriesDto) {
-    return this.categoriesService.removeMany(dto.ids);
+    console.log(dto);
+    return this.categoriesService.removeMany(dto.slugs);
   }
 }

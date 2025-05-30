@@ -124,3 +124,48 @@
     @apply min-h-screen py-[5rem];
   }
 }
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Hide number input arrows (Firefox) */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.sculpted-text {
+  @apply relative text-transparent bg-clip-text bg-black/50 font-bold  tracking-wide 
+    drop-shadow-[0_1px_1px_rgba(0,0,0,0.6)] shadow-inner
+    transition-all duration-300;
+}
+
+.sculpted-text:hover {
+  @apply bg-black/70;
+}
+
+.sculpted-text:active {
+  @apply bg-black/90;
+}
+
+.sculpted-text-focus {
+  @apply focus:outline-none focus:ring-2 focus:ring-yellow-900/40;
+}
+
+.sculpted-text-active {
+  @apply active:outline-none active:ring-2 active:ring-yellow-900 active:text-yellow-900;
+}
+
+.info-card {
+  @apply max-w-2xl space-y-4 border p-4 rounded-md bg-white;
+}
+
+.info-card-label {
+  @apply font-semibold m-2 capitalize text-sm text-gray-500;
+}
+
+.info-card-title {
+  @apply font-semibold uppercase text-gray-800 p-2;
+}

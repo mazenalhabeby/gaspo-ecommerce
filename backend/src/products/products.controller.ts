@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
-import { createS3Interceptor } from 'src/common/interceptors/create-s3.interceptor';
+import { S3Interceptor } from 'src/common/interceptors/s3.interceptor';
 
 @Controller('products')
 export class ProductsController {
@@ -17,7 +17,7 @@ export class ProductsController {
 
   @Post()
   @UseInterceptors(
-    createS3Interceptor('products', [{ name: 'images', maxCount: 10 }]),
+    S3Interceptor('products', [{ name: 'images', maxCount: 10 }]),
   )
   create(
     @UploadedFiles()

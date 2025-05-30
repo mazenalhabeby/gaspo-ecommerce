@@ -73,37 +73,42 @@ export class CategoriesService {
       await this.deleteIfExists(category.imageUrl);
     }
 
-    return await this.prisma.category.delete({ where: { id } });
+    await this.prisma.category.delete({ where: { id } });
+
+    return { message: 'Category deleted successfully', deletedId: id };
   }
 
-  async removeMany(ids: string[]) {
+  async removeMany(slugs: string[]) {
     const categories = await this.prisma.category.findMany({
-      where: { id: { in: ids } },
+      where: { slug: { in: slugs } },
     });
 
-    for (const category of categories) {
-      if (category.imageUrl) {
-        await this.deleteIfExists(category.imageUrl);
-      }
-    }
+    await Promise.all(
+      categories.map((category) =>
+        category.imageUrl ? this.deleteIfExists(category.imageUrl) : null,
+      ),
+    );
 
-    return this.prisma.category.deleteMany({
-      where: { id: { in: ids } },
+    const result = await this.prisma.category.deleteMany({
+      where: { slug: { in: slugs } },
     });
+
+    return {
+      deletedCount: result.count,
+      message: `Deleted ${result.count} categories successfully`,
+    };
   }
 
   private async deleteIfExists(imageUrl: string) {
-    const bucket = process.env.S3_BUCKET;
-    const s3BaseUrl = `https://${bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/`;
-
-    const key = imageUrl.replace(s3BaseUrl, '');
-
-    if (!key) return;
-
     try {
+      const url = new URL(imageUrl);
+      const key = url.pathname.slice(1);
+
+      if (!key) return;
+
       await this.s3.send(
         new DeleteObjectCommand({
-          Bucket: bucket,
+          Bucket: process.env.S3_BUCKET!,
           Key: key,
         }),
       );

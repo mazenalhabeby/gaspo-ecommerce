@@ -43,7 +43,9 @@ const LanguageSwitcher = () => {
           className="outline-0 bg-transparent hover:bg-transparent focus:bg-transparent active:bg-transparent cursor-pointer"
         >
           <IoLanguage />
-          <span className="sculpted-text">{currentLang.shortcut}</span>
+          <span className={`${pathname === "/" ? "sculpted-text" : ""}`}>
+            {currentLang.shortcut}
+          </span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className=" z-[102]" align="end">

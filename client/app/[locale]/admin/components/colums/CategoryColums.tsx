@@ -1,22 +1,13 @@
 "use client"
-
 import {ColumnDef} from "@tanstack/react-table"
 import {Checkbox} from "@/components/ui/checkbox"
-import {Button} from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu"
-import {MoreHorizontal} from "lucide-react"
 import Link from "next/link"
 import {dashboardRoutes} from "@/lib/routes"
-import {CategoriesResponse} from "@/lib/schemas/category.schema"
+import {CategoriesResponseType} from "@/lib/schema/categories.schema"
+import Image from "next/image"
+import {CategoryActions} from "./CategoryActions"
 
-export const CategoryColumns: ColumnDef<CategoriesResponse>[] = [
+export const CategoryColumns: ColumnDef<CategoriesResponseType>[] = [
   {
     id: "select",
     header: ({table}) => (
@@ -49,8 +40,10 @@ export const CategoryColumns: ColumnDef<CategoriesResponse>[] = [
           href={dashboardRoutes.category(category.slug)}
           className="flex items-center gap-3"
         >
-          <img
-            src={category.imageUrl}
+          <Image
+            src={category.imageUrl as string}
+            width={40}
+            height={40}
             alt={category.name}
             className="w-10 h-10 rounded-md object-cover border"
           />
@@ -72,36 +65,7 @@ export const CategoryColumns: ColumnDef<CategoriesResponse>[] = [
     header: () => <span className="sr-only">Actions</span>,
     cell: ({row}) => {
       const category = row.original
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="w-4 h-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem asChild>
-              <Link href={dashboardRoutes.category(category.slug)}>
-                View Category
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href={dashboardRoutes.categoryEdit(category.slug)}>
-                Edit Category
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={() => alert(`Delete: ${category.name}`)}
-              className="text-red-500"
-            >
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )
+      return <CategoryActions category={category} />
     },
   },
 ]
