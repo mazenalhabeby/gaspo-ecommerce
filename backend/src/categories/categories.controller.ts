@@ -11,10 +11,11 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
-import { CreateCategoryDto } from './dto/create-category.dto';
+import { CreateCategoryDto, TranslationDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { S3Interceptor } from 'src/common/interceptors/s3.interceptor';
 import { DeleteCategoriesDto } from './dto/delete-caredories.dto';
+import { ParseJsonPipe } from 'src/common';
 
 @Controller('categories')
 export class CategoriesController {
@@ -26,7 +27,8 @@ export class CategoriesController {
   )
   create(
     @UploadedFiles() files: { image?: Express.Multer.File[] },
-    @Body() dto: CreateCategoryDto,
+    @Body('translations', ParseJsonPipe) translations: TranslationDto[],
+    @Body() categoryData: Omit<CreateCategoryDto, 'translations'>,
   ) {
     const file = files.image?.[0];
     if (!file) throw new BadRequestException('Image upload failed');
@@ -35,6 +37,12 @@ export class CategoriesController {
     if (typeof s3File.location !== 'string') {
       throw new BadRequestException('Image upload failed: missing S3 location');
     }
+
+    const dto: CreateCategoryDto = {
+      ...categoryData,
+      translations,
+    };
+
     return this.categoriesService.create(dto, s3File.location);
   }
 
@@ -55,14 +63,20 @@ export class CategoriesController {
   async updateCategory(
     @Param('slug') slug: string,
     @UploadedFiles() files: { image?: Express.Multer.File[] },
-    @Body() dto: UpdateCategoryDto,
+    @Body('translations', ParseJsonPipe) translations: TranslationDto[],
+    @Body() categoryData: Omit<UpdateCategoryDto, 'translations'>,
   ) {
-    // ✅ this is safe even if files.image is undefined
     const file = files?.image?.[0] as Express.Multer.File & {
       location?: string;
     };
 
-    const newImageUrl = file?.location; // may be undefined
+    const newImageUrl = file?.location;
+
+    const dto: UpdateCategoryDto = {
+      ...categoryData,
+      translations,
+    };
+
     return this.categoriesService.update(slug, dto, newImageUrl);
   }
 

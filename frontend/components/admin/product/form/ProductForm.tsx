@@ -125,7 +125,7 @@ export default function ProductForm({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left Column */}
         <div className="space-y-6">
-          <DetailsFormSection<ProductResponse>
+          <DetailsFormSection
             register={register}
             setValue={setValue}
             fieldNames={{

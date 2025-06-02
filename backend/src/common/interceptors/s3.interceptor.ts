@@ -1,16 +1,23 @@
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import * as multerS3 from 'multer-s3';
-import { s3 } from '../configs/s3.config';
 import { Request } from 'express';
 import { randomUUID } from 'crypto';
 import * as path from 'path';
+import { S3Client } from '@aws-sdk/client-s3';
 
 type FieldConfig = { name: string; maxCount: number };
 
 export function S3Interceptor(folder: string, fields: FieldConfig[]) {
   return FileFieldsInterceptor(fields, {
     storage: multerS3({
-      s3,
+      s3: new S3Client({
+        region: process.env.AWS_REGION!,
+        credentials: {
+          accessKeyId: process.env.AWS_ACCESS_KEY!,
+          secretAccessKey: process.env.AWS_SECRET_KEY!,
+        },
+      }),
+
       bucket: process.env.S3_BUCKET!,
       key: (req: Request, file, cb) => {
         // 1. Extract category name from body or fallback

@@ -1,4 +1,10 @@
 {
+  "category": {
+    "description": "category description",
+    "entity": "category",
+    "label": "Details",
+    "name": "category name"
+  },
   "common": {
     "address": "Peiskam 6, 4694 Ohlsdorf, Austria",
     "addressTitle": "Address",
@@ -170,5 +176,10 @@
     "description": "The page you are looking for does not exist.",
     "home": "homepage",
     "title": "Page Not Found"
+  },
+  "product": {
+    "description": "product description",
+    "entity": "product",
+    "name": "product name"
   }
 }

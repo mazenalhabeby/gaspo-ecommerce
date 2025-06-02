@@ -59,7 +59,7 @@ export default function VariantManager({
   return (
     <div>
       <h3 className="font-semibold text-lg">Variants</h3>
-      <div className="product-info-card">
+      <div className="info-card">
         <div className="flex justify-end items-center">
           <VariantFieldDialog
             onAdd={(newField) => {

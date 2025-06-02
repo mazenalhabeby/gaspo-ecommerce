@@ -1,9 +1,25 @@
 import {z} from "zod"
 
-export const categorySchema = z.object({
+export const translationSchema = z.object({
+  language: z.string(),
   name: z.string(),
+  description: z.string(),
+})
+
+export const createTranslationSchema = translationSchema.extend({
+  name: z
+    .string()
+    .min(2, "Name is required")
+    .max(100, "Name must be less than 100 characters"),
+  description: z
+    .string()
+    .min(20, "Description must be at least 20 characters")
+    .max(500, "Description must be less than 500 characters"),
+})
+
+export const categorySchema = z.object({
   slug: z.string(),
-  description: z.string().optional(),
+  translations: z.array(translationSchema),
   imageUrl: z.string().optional(),
   parentId: z.string().optional().nullable(),
 })
@@ -22,20 +38,11 @@ export const categoriesResponseSchema = categoryResponseSchema.extend({
 
 export const createCategorySchema = categorySchema
   .extend({
-    name: z
-      .string()
-      .min(2, "Name is required")
-      .max(100, "Name must be less than 100 characters"),
-    slug: z
-      .string()
-      .min(2, "Slug is required")
-      .max(100, "Slug must be less than 100 characters"),
-    description: z
-      .string()
-      .min(20, "Description must be at least 2 characters")
-      .max(500, "Description must be less than 500 characters"),
+    translations: z
+      .array(createTranslationSchema)
+      .min(1, "At least one language is required"),
   })
-  .omit({imageUrl: true, parentId: true})
+  .omit({imageUrl: true, parentId: true, slug: true})
 
 export const createCategorySchemaWithImage = createCategorySchema.extend({
   image: z

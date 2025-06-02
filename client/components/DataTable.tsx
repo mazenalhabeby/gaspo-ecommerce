@@ -129,8 +129,6 @@ export function DataTable<TData extends {slug: string}, TValue>({
     }
   }
 
-  console.log("selectedIds", selectedIds)
-
   return (
     <div className="relative space-y-4">
       <div className="flex items-center justify-between">

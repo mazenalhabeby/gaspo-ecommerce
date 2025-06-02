@@ -1,4 +1,10 @@
 {
+  "category": {
+    "description": "Kategorie Beschreibung",
+    "entity": "Kategorie",
+    "label": "Details",
+    "name": "Kategorienname"
+  },
   "common": {
     "address": "Peiskam 6, 4694 Ohlsdorf, Austria",
     "addressTitle": "Adresse",
@@ -170,5 +176,10 @@
     "description": "Die Seite, nach der Sie suchen, gibt es nicht.",
     "home": "Startseite",
     "title": "Seite nicht gefunden"
+  },
+  "product": {
+    "description": "Produktbeschreibung",
+    "entity": "Produkt",
+    "name": "Produktname"
   }
 }

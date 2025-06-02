@@ -134,6 +134,30 @@ model Address {
   Orders        Order[]
 }
 
+model Category {
+  id           String                @id @default(cuid())
+  slug         String                @unique
+  imageUrl     String?
+  parentId     String?
+  parent       Category?             @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  products     Product[]
+  children     Category[]            @relation("CategoryHierarchy")
+  translations CategoryTranslation[]
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+}
+
+model CategoryTranslation {
+  id          String   @id @default(cuid())
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id])
+  language    String
+  name        String
+  description String
+
+  @@unique([categoryId, language])
+}
+
 model Product {
   id                  String               @id @default(cuid())
   name                String
@@ -165,73 +189,98 @@ model Product {
   status              ProductStatus        @default(DRAFT)
   seoTitle            String?
   seoDesc             String?
-  variantFields       String[]             @default([]) // e.g., ["size", "color"]
+  variantFields       String[]             @default([])
   createdById         String?
   createdBy           User?                @relation(fields: [createdById], references: [id])
-  pricingUnit         String? // e.g., "each", "kg", "box"
+  pricingUnit         String?
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
 }
 
-model ProductDiscount {
-  id        String  @id @default(cuid())
-  productId String
-  product   Product @relation(fields: [productId], references: [id])
+model ProductTranslation {
+  id              String   @id @default(cuid())
+  productId       String
+  product         Product  @relation(fields: [productId], references: [id])
+  language        String
+  name            String
+  description     String
+  descriptionJson Json?
+  seoTitle        String?
+  seoDesc         String?
+  createdAt       DateTime @default(now())
 
-  minQuantity Int
-  maxQuantity Int?
-  type        DiscountType // PERCENT or FIXED
-  value       Float
-  applyTo     DiscountApplyTo // "each", "secondOnly", "nthOnly", etc.
-  createdAt   DateTime        @default(now())
-}
-
-model Category {
-  id          String     @id @default(cuid())
-  name        String     @unique
-  slug        String     @unique
-  description String
-  imageUrl    String?
-  parentId    String?
-  parent      Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
-  products    Product[]
-  children    Category[] @relation("CategoryHierarchy")
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  @@unique([productId, language])
 }
 
 model ProductVariant {
-  id             String             @id @default(cuid())
+  id             String                      @id @default(cuid())
   productId      String
-  product        Product            @relation(fields: [productId], references: [id])
+  product        Product                     @relation(fields: [productId], references: [id])
   name           String
-  slug           String             @unique
-  sku            String?            @unique
+  slug           String                      @unique
+  sku            String?                     @unique
   price          Float
   stock          Int
   metadata       Json?
   attributes     VariantAttribute[]
   StockMovements StockMovement[]
-  createdAt      DateTime           @default(now())
-  updatedAt      DateTime           @updatedAt
   ProductImage   ProductImage[]
+  translations   ProductVariantTranslation[]
+  createdAt      DateTime                    @default(now())
+  updatedAt      DateTime                    @updatedAt
+}
+
+model ProductVariantTranslation {
+  id        String         @id @default(cuid())
+  variantId String
+  variant   ProductVariant @relation(fields: [variantId], references: [id])
+  language  String
+  name      String
+  createdAt DateTime       @default(now())
+
+  @@unique([variantId, language])
 }
 
 model VariantAttribute {
-  id        String         @id @default(cuid())
-  name      String // e.g., 'size', 'color'
-  value     String // e.g., 'XL', 'Red'
-  variantId String
-  variant   ProductVariant @relation(fields: [variantId], references: [id])
+  id           String                        @id @default(cuid())
+  name         String
+  value        String
+  variantId    String
+  variant      ProductVariant                @relation(fields: [variantId], references: [id])
+  translations VariantAttributeTranslation[]
 
   @@unique([variantId, name])
+}
+
+model VariantAttributeTranslation {
+  id          String           @id @default(cuid())
+  attributeId String
+  attribute   VariantAttribute @relation(fields: [attributeId], references: [id])
+  language    String
+  name        String
+  value       String
+  createdAt   DateTime         @default(now())
+
+  @@unique([attributeId, language])
+}
+
+model ProductDiscount {
+  id          String          @id @default(cuid())
+  productId   String
+  product     Product         @relation(fields: [productId], references: [id])
+  minQuantity Int
+  maxQuantity Int?
+  type        DiscountType
+  value       Float
+  applyTo     DiscountApplyTo
+  createdAt   DateTime        @default(now())
 }
 
 model ProductImage {
   id        String          @id @default(cuid())
   url       String
   altText   String?
-  position  Int             @default(0) // allows sorting
+  position  Int             @default(0)
   productId String
   product   Product         @relation(fields: [productId], references: [id])
   variant   ProductVariant? @relation(fields: [variantId], references: [id])
@@ -253,7 +302,7 @@ model Review {
   product    Product  @relation(fields: [productId], references: [id])
   userId     String
   user       User     @relation(fields: [userId], references: [id])
-  rating     Int // 1 to 5
+  rating     Int
   title      String?
   comment    String?
   isVerified Boolean  @default(false)
@@ -367,15 +416,15 @@ model Shipment {
   id             String         @id @default(cuid())
   orderId        String
   order          Order          @relation(fields: [orderId], references: [id])
-  carrier        String // e.g., "GLS", "DHL", "UPS"
-  trackingNumber String // Tracking code from courier
-  labelUrl       String? // Optional: PDF/URL for shipping label
+  carrier        String
+  trackingNumber String
+  labelUrl       String?
   status         ShipmentStatus @default(PENDING)
-  shippedAt      DateTime? // When parcel was shipped
-  deliveredAt    DateTime? // When parcel was delivered
-  metadata       Json? // Optional: store delivery address, weight, box size, etc.
-  lastSyncedAt   DateTime? // Last time tracking was updated
-  failureReason  String? // GLS/DHL rejection, customer not home, etc.
+  shippedAt      DateTime?
+  deliveredAt    DateTime?
+  metadata       Json?
+  lastSyncedAt   DateTime?
+  failureReason  String?
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
 }
@@ -390,22 +439,9 @@ model ReturnRequest {
   status       ReturnStatus @default(PENDING)
   quantity     Int          @default(1)
   refundAmount Float?
-  resolution   String? // e.g., "Refund", "Replacement", etc.
+  resolution   String?
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
-}
-
-model ProductTranslation {
-  id              String   @id @default(cuid())
-  productId       String
-  product         Product  @relation(fields: [productId], references: [id])
-  language        String // e.g., 'en', 'de', 'fr'
-  name            String
-  description     String
-  descriptionJson Json?
-  createdAt       DateTime @default(now())
-
-  @@unique([productId, language]) // Only one translation per language
 }
 
 model Notification {
@@ -414,7 +450,7 @@ model Notification {
   user    User?    @relation(fields: [userId], references: [id])
   title   String
   message String
-  type    String // e.g., "ORDER_UPDATE", "REFUND", "SYSTEM"
+  type    String
   read    Boolean  @default(false)
   sentAt  DateTime @default(now())
 }

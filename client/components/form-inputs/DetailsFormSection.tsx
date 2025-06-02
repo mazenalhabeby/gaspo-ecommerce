@@ -1,11 +1,9 @@
-"use client"
-
-import React, {useRef} from "react"
+import React, {useState} from "react"
 import {Button} from "@/components/ui/button"
 import {Label} from "@/components/ui/label"
 import {Input} from "@/components/ui/input"
 import {Textarea} from "@/components/ui/textarea"
-import {UploadCloud} from "lucide-react"
+import {Loader2} from "lucide-react"
 import {toast} from "sonner"
 import {
   UseFormRegister,
@@ -15,124 +13,122 @@ import {
   PathValue,
 } from "react-hook-form"
 import RequiredMark from "@/components/RequiredMark"
+import {translateText} from "@/lib/utils/translate"
 
 interface DescriptionUploaderProps<T extends FieldValues> {
   register: UseFormRegister<T>
   setValue: UseFormSetValue<T>
   fieldNames: {
     name: Path<T>
-    slug: Path<T>
     description: Path<T>
   }
   label?: string
-  showSlug?: boolean
+  customLabels?: {
+    nameLabel?: string
+    descriptionLabel?: string
+  }
+  sourceText?: {
+    name: string
+    description: string
+  }
+  sourceLang: string
+  targetLang: string
+  errors?: Record<string, {message?: string}>
 }
 
 export default function DetailsFormSection<T extends FieldValues>({
   register,
   setValue,
   fieldNames,
-  label = "Product",
-  showSlug = true,
+  label = "Item",
+  customLabels,
+  sourceText,
+  sourceLang,
+  targetLang,
+  errors = {},
 }: DescriptionUploaderProps<T>) {
-  const fileInputRef = useRef<HTMLInputElement | null>(null)
+  const [loading, setLoading] = useState(false)
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) {
-      toast.error("No file selected")
+  const handleTranslate = async () => {
+    if (!sourceText?.name && !sourceText?.description) {
+      toast.error("Nothing to translate from source language.")
       return
     }
 
-    if (file.size > 1024 * 100) {
-      toast.error("File is too large. Max 100KB.")
-      return
-    }
-
-    if (!file.type.startsWith("text/") || file.type !== "text/plain") {
-      toast.error("Only .txt text files are allowed.")
-      return
-    }
-
+    setLoading(true)
     try {
-      const text = await file.text()
+      const [translatedName, translatedDescription] = await Promise.all([
+        translateText(sourceText.name, sourceLang, targetLang),
+        translateText(sourceText.description, sourceLang, targetLang),
+      ])
+
+      setValue(
+        fieldNames.name,
+        translatedName as PathValue<T, typeof fieldNames.name>
+      )
       setValue(
         fieldNames.description,
-        text.trim() as PathValue<T, typeof fieldNames.description>
+        translatedDescription as PathValue<T, typeof fieldNames.description>
       )
-      toast.success("File content loaded into description.")
-    } catch (err) {
-      toast.error("Failed to read file", {
-        description: (err as Error)?.message || "Unknown error",
-      })
-    }
-  }
 
-  const handleClickUpload = () => {
-    fileInputRef.current?.click()
+      toast.success(`Translated from ${sourceLang} to ${targetLang}`)
+    } catch {
+      toast.error("Translation failed")
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
-    <React.Fragment>
-      <h3 className="info-card-title">{label.toLowerCase()} description</h3>
-      <div className="info-card mx-auto">
-        <div>
-          <Label htmlFor="productName" className="info-card-label">
-            {label} Name
-            <RequiredMark style="star" />
-          </Label>
+    <div className="info-card mx-auto">
+      <h3 className="info-card-title">{label?.toUpperCase()} DETAILS</h3>
 
-          <Input
-            id="productName"
-            placeholder={`Enter ${label.toLowerCase()} name`}
-            {...register(fieldNames.name)}
-          />
-
-          {showSlug && (
-            <Input
-              id="slug"
-              placeholder="Slug e.g. argus-4-pro-kit"
-              {...register(fieldNames.slug)}
-              className="border-0 shadow-none text-gray-400 text-xs placeholder:text-xs placeholder:text-gray-400 pointer-events-none"
-              readOnly
-            />
+      <div className="mb-2 flex justify-end">
+        <Button
+          type="button"
+          size="sm"
+          variant="link"
+          className="text-primary"
+          disabled={loading}
+          onClick={handleTranslate}
+        >
+          {loading ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <>🌐 Translate from {sourceLang.toUpperCase()}</>
           )}
-        </div>
-
-        <div>
-          <div className="flex flex-row items-center justify-between w-full">
-            <Label htmlFor="description" className="info-card-label">
-              {label} Description
-              <RequiredMark style="star" />
-            </Label>
-            <Button
-              type="button"
-              variant="link"
-              size="sm"
-              className="text-primary flex items-center gap-1"
-              onClick={handleClickUpload}
-            >
-              <UploadCloud className="w-4 h-4" />
-              Upload .txt file
-            </Button>
-          </div>
-
-          <input
-            type="file"
-            ref={fileInputRef}
-            accept=".txt"
-            className="hidden"
-            onChange={handleFileUpload}
-          />
-
-          <Textarea
-            id="description"
-            placeholder={`Enter ${label.toLowerCase()} description...`}
-            className="min-h-[160px]"
-            {...register(fieldNames.description)}
-          />
-        </div>
+        </Button>
       </div>
-    </React.Fragment>
+
+      <div>
+        <Label htmlFor="name" className="info-card-label">
+          {customLabels?.nameLabel || `${label} Name`}{" "}
+          <RequiredMark style="star" />
+        </Label>
+        <Input {...register(fieldNames.name)} placeholder="Enter name" />
+        {errors?.[fieldNames.name]?.message && (
+          <span className="text-red-500 text-sm">
+            {errors[fieldNames.name]?.message as string}
+          </span>
+        )}
+      </div>
+
+      <div className="mt-4">
+        <Label htmlFor="description" className="info-card-label">
+          {customLabels?.descriptionLabel || `${label} Description`}{" "}
+          <RequiredMark style="star" />
+        </Label>
+        <Textarea
+          {...register(fieldNames.description)}
+          placeholder="Enter description..."
+          className="min-h-[160px]"
+        />
+        {errors?.[fieldNames.description]?.message && (
+          <span className="text-red-500 text-sm">
+            {errors[fieldNames.description]?.message as string}
+          </span>
+        )}
+      </div>
+    </div>
   )
 }

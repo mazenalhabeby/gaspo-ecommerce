@@ -6,6 +6,7 @@ import {dashboardRoutes} from "@/lib/routes"
 import {CategoriesResponseType} from "@/lib/schema/categories.schema"
 import Image from "next/image"
 import {CategoryActions} from "./CategoryActions"
+import {beautifySlug} from "@/lib/utils"
 
 export const CategoryColumns: ColumnDef<CategoriesResponseType>[] = [
   {
@@ -35,6 +36,7 @@ export const CategoryColumns: ColumnDef<CategoriesResponseType>[] = [
     header: "Category Name",
     cell: ({row}) => {
       const category = row.original
+
       return (
         <Link
           href={dashboardRoutes.category(category.slug)}
@@ -44,11 +46,11 @@ export const CategoryColumns: ColumnDef<CategoriesResponseType>[] = [
             src={category.imageUrl as string}
             width={40}
             height={40}
-            alt={category.name}
+            alt={category.slug}
             className="w-10 h-10 rounded-md object-cover border"
           />
           <span className="font-medium w-32 md:w-auto truncate">
-            {category.name}
+            {beautifySlug(category.slug)}
           </span>
         </Link>
       )

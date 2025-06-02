@@ -13,9 +13,14 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { ActivityLogModule } from './activity-log/activity-log.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { RedisService } from './common';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+    }),
     ThrottlerModule.forRoot({
       throttlers: [{ ttl: 60, limit: 5 }],
     }),

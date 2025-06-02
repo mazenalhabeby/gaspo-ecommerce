@@ -1,40 +1,58 @@
 "use client"
 import React, {useEffect} from "react"
-import CategoryForm from "../../../components/forms/CategoryForm"
 import {useForm} from "react-hook-form"
-import {useAppToast} from "@/hooks/use-app-toast"
+import {zodResolver} from "@hookform/resolvers/zod"
 import {useRouter} from "next/navigation"
+
+import CategoryForm from "../../../components/forms/CategoryForm"
+import CategoryFormSkeleton from "../../../components/loading/CategoryFormSkeleton"
+
+import {useAppToast} from "@/hooks/use-app-toast"
+import {useSupportedLanguages} from "@/hooks/use-supported-languages"
+import {useCategoryEditor} from "@/hooks/use-categories"
 import {
   updateCategorySchemaWithImage,
   UpdateCategoryWithImageType,
 } from "@/lib/schema/categories.schema"
-import {zodResolver} from "@hookform/resolvers/zod"
-import {useCategoryEditor} from "@/hooks/use-categories"
-import CategoryFormSkeleton from "../../../components/loading/CategoryFormSkeleton"
+import {initTranslationFields} from "@/lib/utils"
 
 export default function CategoryClientEditPage({slug}: {slug: string}) {
+  const router = useRouter()
+  const notify = useAppToast()
+  const languages = useSupportedLanguages()
   const {category, isLoading, updateCategory, isUpdating} =
     useCategoryEditor(slug)
-
-  const notify = useAppToast()
-  const router = useRouter()
 
   const form = useForm<UpdateCategoryWithImageType>({
     resolver: zodResolver(updateCategorySchemaWithImage),
     mode: "onChange",
+    defaultValues: {
+      image: undefined,
+      translations: initTranslationFields(languages),
+    },
   })
 
   const {reset} = form
+
   useEffect(() => {
     if (category) {
+      const filledTranslations = languages.map((lang) => {
+        const match = category.translations.find(
+          (t) => t.language === lang.code
+        )
+        return {
+          language: lang.code,
+          name: match?.name || "",
+          description: match?.description || "",
+        }
+      })
+
       reset({
-        name: category.name ?? "",
-        slug: category.slug ?? "",
-        description: category.description ?? "",
-        image: category.imageUrl ?? "",
+        image: category.imageUrl,
+        translations: filledTranslations,
       })
     }
-  }, [category, reset])
+  }, [category, languages, reset])
 
   if (isLoading) {
     return <CategoryFormSkeleton />
@@ -62,6 +80,7 @@ export default function CategoryClientEditPage({slug}: {slug: string}) {
       mode="edit"
       form={form}
       isDisabled={isUpdating}
+      languages={languages}
     />
   )
 }

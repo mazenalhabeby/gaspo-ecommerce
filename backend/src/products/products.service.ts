@@ -27,33 +27,22 @@ export class ProductsService {
       position: index,
     }));
 
-    // ------------------------------
-    // Packages
-    // ------------------------------
-    const parsedPackages: Record<string, any>[] = this.safeJsonParseArray(
-      dto.packages,
-    );
-    // ------------------------------
-    // Variant Fields
-    // ------------------------------
-    const parsedVariantFields: Record<string, any>[] = this.safeJsonParseArray(
-      dto.variantFields,
-    );
-    // ------------------------------
-    // Variants
-    // ------------------------------
-    type Variant = {
+    // Parse complex fields from JSON (in case of multipart/form-data)
+    const parsedPackages = this.safeJsonParseArray(dto.packages);
+    const parsedVariantFields = this.safeJsonParseArray(dto.variantFields);
+    const parsedVariants = this.safeJsonParseArray<{
       name: string;
-      slug?: string;
       sku: string;
-      price: number | string;
-      stock: number | string;
+      price: number;
+      stock: number;
+      slug?: string;
       attributes?: Record<string, any>;
-    };
+      translations?: { language: string; name: string }[];
+    }>(dto.variants);
+    const parsedTranslations = this.safeJsonParseArray(dto.translations);
 
-    const parsedVariants: Variant[] = this.safeJsonParseArray(dto.variants);
-
-    const validVariants: Variant[] = parsedVariants
+    // Filter and sanitize variants
+    const validVariants = parsedVariants
       .filter(
         (v) =>
           v.name &&
@@ -65,9 +54,8 @@ export class ProductsService {
         ...v,
         slug: v.slug ? v.slug : slugify(v.name, { lower: true, strict: true }),
       }));
-    // ------------------------------
-    // Create Product
-    // ------------------------------
+
+    // Start DB operation
     try {
       const product = await this.prisma.product.create({
         data: {
@@ -83,20 +71,47 @@ export class ProductsService {
           categoryId: dto.categoryId,
           seoTitle: dto.seoTitle,
           seoDesc: dto.seoDesc,
-          packages: parsedPackages,
+          packages: parsedPackages || [],
           variantFields: Array.isArray(parsedVariantFields)
-            ? parsedVariantFields.map((field) => JSON.stringify(field))
+            ? parsedVariantFields
             : [],
+          metadata: dto.metadata || {},
+          bundleMetadata: dto.bundleMetadata || {},
+
+          // Translations
+          ProductTranslations: {
+            create: parsedTranslations.map(
+              (t: {
+                language: string;
+                name: string;
+                description?: string;
+                seoTitle?: string | null;
+                seoDesc?: string | null;
+                descriptionJson?: any;
+              }) => ({
+                language: t.language,
+                name: t.name,
+                description: t.description ?? '',
+                seoTitle: t.seoTitle ?? null,
+                seoDesc: t.seoDesc ?? null,
+              }),
+            ),
+          },
+
+          // Images
           images: {
             create: imageData,
           },
+
+          // Variants + attributes + translations
           variants: {
             create: validVariants.map((variant) => ({
               name: variant.name,
-              slug: variant.slug as string,
+              slug: variant.slug,
               sku: variant.sku,
               price: Number(variant.price),
               stock: Number(variant.stock),
+
               attributes: variant.attributes
                 ? {
                     create: Object.entries(variant.attributes).map(
@@ -107,10 +122,30 @@ export class ProductsService {
                     ),
                   }
                 : undefined,
+
+              translations: variant.translations
+                ? {
+                    create: variant.translations.map((t) => ({
+                      language: t.language,
+                      name: t.name,
+                    })),
+                  }
+                : undefined,
             })),
           },
         },
+        include: {
+          images: true,
+          variants: {
+            include: {
+              attributes: true,
+              translations: true,
+            },
+          },
+          ProductTranslations: true,
+        },
       });
+
       return product;
     } catch (error) {
       throw handlePrismaError(error, 'product');

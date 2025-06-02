@@ -21,7 +21,6 @@ export function CategoriesClientPage() {
         description: error.message ?? "An unexpected error occurred.",
       })
     }
-    console.log(error)
   }, [error])
 
   if (isLoading) {
@@ -36,7 +35,7 @@ export function CategoriesClientPage() {
             <DataTable
               columns={CategoryColumns}
               data={categories ?? []}
-              searchableColumns={["name"]}
+              searchableColumns={["slug"]}
               enableRowSelection
               otherComponents={
                 <LinkButton

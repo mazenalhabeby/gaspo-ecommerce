@@ -15,6 +15,7 @@ import {useDeleteCategory} from "@/hooks/use-categories"
 import {CategoriesResponseType} from "@/lib/schema/categories.schema"
 import {DeleteButton} from "@/components/DeleteButton"
 import {toast} from "sonner"
+import {beautifySlug} from "@/lib/utils"
 
 type Props = {
   category: CategoriesResponseType
@@ -27,11 +28,14 @@ export function CategoryActions({category}: Props) {
     const toastId = toast.loading("Deleting category...")
     try {
       await deleteCategory(category.id)
-      toast.success(`Category "${category.name}" deleted successfully`, {
-        id: toastId,
-      })
+      toast.success(
+        `Category "${beautifySlug(category.slug)}" deleted successfully`,
+        {
+          id: toastId,
+        }
+      )
     } catch (error) {
-      toast.error(`Failed to delete "${category.name}"`, {
+      toast.error(`Failed to delete "${beautifySlug(category.slug)}"`, {
         id: toastId,
         description: (error as Error).message || "Something went wrong",
       })
@@ -64,7 +68,9 @@ export function CategoryActions({category}: Props) {
             onDelete={handleDelete}
             variant="ghost"
             confirmText={category.slug}
-            message={`Are you sure you want to delete the category "${category.name}"?\n   type "${category.slug}" to confirm.`}
+            message={`Are you sure you want to delete the category "${beautifySlug(
+              category.slug
+            )}"?\n   type "${category.slug}" to confirm.`}
             className=" border-0 hover:border-0 focus:border-0 ring-0 focus:ring-0 text-red-500 hover:bg-transparent focus:bg-transparent hover:text-red-600 focus:text-red-600 cursor-pointer"
             type="button"
           >

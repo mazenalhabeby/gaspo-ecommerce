@@ -10,10 +10,14 @@ import {zodResolver} from "@hookform/resolvers/zod"
 import {useAppToast} from "@/hooks/use-app-toast"
 import {useRouter} from "next/navigation"
 import {useCreateCategory} from "@/hooks/use-categories"
+import {useSupportedLanguages} from "@/hooks/use-supported-languages"
+import {initTranslationFields} from "@/lib/utils"
 
 export default function CategoriesClientCreatePage() {
   const notify = useAppToast()
   const router = useRouter()
+
+  const languages = useSupportedLanguages()
 
   const {mutateAsync: createCategory, isPending} = useCreateCategory()
 
@@ -21,10 +25,8 @@ export default function CategoriesClientCreatePage() {
     resolver: zodResolver(createCategorySchemaWithImage),
     mode: "onChange",
     defaultValues: {
-      name: "",
-      slug: "",
-      description: "",
-      image: undefined, // Optional field for image upload
+      image: undefined,
+      translations: initTranslationFields(languages),
     },
   })
 
@@ -50,6 +52,7 @@ export default function CategoriesClientCreatePage() {
       mode="add"
       form={form}
       isDisabled={isPending}
+      languages={languages}
     />
   )
 }

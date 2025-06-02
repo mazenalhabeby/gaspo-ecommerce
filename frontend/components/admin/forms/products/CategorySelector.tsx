@@ -27,8 +27,6 @@ export default function CategorySelector({
   setValue,
   watch,
 }: CategorySelectorProps) {
-  const selectedCategory = watch("categoryId")
-
   return (
     <div>
       <h3 className="product-info-card-title">Category</h3>
@@ -38,7 +36,7 @@ export default function CategorySelector({
             Product Category <RequiredMark style="star" />
           </Label>
           <Select
-            value={selectedCategory ?? undefined}
+            value={watch("categoryId") ?? undefined}
             onValueChange={(val) => setValue("categoryId", val)}
           >
             <SelectTrigger className="w-full">

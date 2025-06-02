@@ -121,7 +121,7 @@ export function ImageUploader<T extends FieldValues>({
   }, [previewUrls])
 
   return (
-    <React.Fragment>
+    <div>
       <h3 className="info-card-title">{label.toLowerCase()}</h3>
       <div className="info-card">
         <Label className="info-card-label">
@@ -218,6 +218,6 @@ export function ImageUploader<T extends FieldValues>({
           })}
         </div>
       </div>
-    </React.Fragment>
+    </div>
   )
 }

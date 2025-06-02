@@ -9,3 +9,6 @@ export const routing = defineRouting({
   locales: ["en", "de"],
   defaultLocale: "en",
 })
+
+export type Language = (typeof languages)[number]
+export type LanguageCode = Language["code"]

@@ -5,7 +5,11 @@ import DetailsFormSection from "@/components/form-inputs/DetailsFormSection"
 import {ImageUploader} from "@/components/form-inputs/ImageUploader"
 import {CategoryFormValues} from "@/lib/schema/categories.schema"
 import {FieldValues, UseFormReturn} from "react-hook-form"
-import {useEffect} from "react"
+import {Language} from "@/i18n/routing"
+import {useTranslations} from "next-intl"
+import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs"
+import {FaCheckCircle} from "react-icons/fa"
+import {MdOutlineError} from "react-icons/md"
 
 interface CategoryFormProps {
   initialData?: Partial<CategoryFormValues>
@@ -13,6 +17,7 @@ interface CategoryFormProps {
   mode?: "add" | "edit"
   form: UseFormReturn<CategoryFormValues>
   isDisabled?: boolean
+  languages: Language[]
 }
 
 export default function CategoryForm({
@@ -20,36 +25,41 @@ export default function CategoryForm({
   mode = "add",
   onSubmitHandler,
   isDisabled,
+  languages,
 }: CategoryFormProps) {
   const {register, setValue, watch, formState, handleSubmit} = form
 
-  const name = watch("name")
-  useEffect(() => {
-    const slug = name
-      ?.normalize("NFKD")
-      .toLowerCase()
-      .trim()
-      .replace(/\s+/g, "-")
-      .replace(/[^a-z0-9\-]/g, "")
-      .replace(/--+/g, "-")
-      .replace(/^-+|-+$/g, "")
-
-    setValue("slug", slug || "")
-  }, [name, setValue])
+  const t = useTranslations()
 
   const onSubmit = async (data: FieldValues) => {
     const formData = new FormData()
-    formData.append("name", data.name)
-    formData.append("slug", data.slug)
-    if (data.description) formData.append("description", data.description)
 
-    // Only send image if it's a File (new upload)
+    const translations = languages.map((lang, index) => ({
+      language: lang.code,
+      name: data.translations?.[index]?.name || "",
+      description: data.translations?.[index]?.description || "",
+    }))
+
+    formData.append("translations", JSON.stringify(translations))
+
+    if (data.parentId) {
+      formData.append("parentId", data.parentId)
+    }
+
     if (data.image instanceof File) {
       formData.append("image", data.image)
     }
-
     await onSubmitHandler(formData)
   }
+
+  const isLanguageValid = (code: string, index: number): boolean => {
+    const values = watch(`translations.${index}`)
+    return !!values?.name?.trim() && !!values?.description?.trim()
+  }
+
+  const allValid = languages.every((lang, index) =>
+    isLanguageValid(lang.code, index)
+  )
 
   return (
     <form
@@ -57,18 +67,53 @@ export default function CategoryForm({
       className="max-w-screen-xl px-4 py-10 space-y-10"
     >
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div>
-          <DetailsFormSection
-            register={register}
-            setValue={setValue}
-            label="Category"
-            fieldNames={{
-              description: "description",
-              name: "name",
-              slug: "slug",
-            }}
-          />
-        </div>
+        <Tabs defaultValue={languages[0].code} className="w-full">
+          <TabsList>
+            {languages.map((lang, index) => (
+              <TabsTrigger key={lang.code} value={lang.code}>
+                {lang.label}
+                {isLanguageValid(lang.code, index) ? (
+                  <FaCheckCircle className="text-green-500 text-sm" />
+                ) : (
+                  <MdOutlineError className="text-red-500 text-sm" />
+                )}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+
+          {languages.map((lang, index) => {
+            const sourceLangIndex = languages.findIndex(
+              (l) => l.code !== lang.code
+            ) // or hardcode 'en'
+            const source = watch(`translations.${sourceLangIndex}`)
+
+            return (
+              <TabsContent key={lang.code} value={lang.code}>
+                <DetailsFormSection
+                  register={register}
+                  setValue={setValue}
+                  sourceLang={languages[sourceLangIndex].code}
+                  targetLang={lang.code}
+                  sourceText={{
+                    name: source?.name || "",
+                    description: source?.description || "",
+                  }}
+                  label={`${t("category.entity")} (${lang.label})`}
+                  customLabels={{
+                    nameLabel: `${t("category.name")} (${lang.label})`,
+                    descriptionLabel: `${t("category.description")} (${
+                      lang.label
+                    })`,
+                  }}
+                  fieldNames={{
+                    name: `translations.${index}.name`,
+                    description: `translations.${index}.description`,
+                  }}
+                />
+              </TabsContent>
+            )
+          })}
+        </Tabs>
         <div>
           <ImageUploader
             label="Category Image"
@@ -85,7 +130,7 @@ export default function CategoryForm({
         <Button
           type="submit"
           disabled={
-            mode === "edit"
+            !!allValid || mode === "edit"
               ? !formState.isDirty
               : !formState.isValid || isDisabled
           }
