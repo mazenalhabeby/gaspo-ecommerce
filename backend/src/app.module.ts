@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AuthModule } from './auth/auth.module';
-import { UsersModule } from './users/users.module';
 import { ProductsModule } from './products/products.module';
 import { CategoriesModule } from './categories/categories.module';
 import { CartModule } from './cart/cart.module';
@@ -22,8 +20,6 @@ import { ConfigModule } from '@nestjs/config';
     ThrottlerModule.forRoot({
       throttlers: [{ ttl: 60, limit: 5 }],
     }),
-    AuthModule,
-    UsersModule,
     ProductsModule,
     CategoriesModule,
     CartModule,
