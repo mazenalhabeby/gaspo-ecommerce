@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
 import {FieldValues, UseFormReturn} from "react-hook-form"
 import {Button} from "@/components/ui/button"
-import {toast} from "sonner"
+
 import {
   appendArrayFieldToFormData,
   appendJsonFieldToFormData,
@@ -21,15 +22,16 @@ import {useTranslations} from "next-intl"
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs"
 import {FaCheckCircle} from "react-icons/fa"
 import {MdOutlineError} from "react-icons/md"
-import {useMemo} from "react"
-import {Product} from "@/lib/schema/products.schema"
+import {useMemo, useState} from "react"
+import {ProductFormValues} from "@/lib/schema/products.schema"
 
 interface ProductFormProps {
   onSubmitHandler: (data: FormData) => Promise<void>
   mode?: "add" | "edit"
   isLoading?: boolean
-  form: UseFormReturn<Product>
+  form: UseFormReturn<ProductFormValues>
   languages: Language[]
+  isDisabled?: boolean
 }
 
 export default function ProductForm({
@@ -37,7 +39,9 @@ export default function ProductForm({
   mode = "add",
   form,
   languages = [],
+  isDisabled,
 }: ProductFormProps) {
+  const [useVariants, setUseVariants] = useState(false)
   const {data: categories = []} = useCategories()
   const t = useTranslations()
 
@@ -51,28 +55,37 @@ export default function ProductForm({
     control,
   } = form
 
-  const translations = watch("translations")
+  const ProductTranslations = watch("ProductTranslations")
 
   const enTranslation = useMemo(() => {
     return (
-      translations?.find((t: {language: string}) => t.language === "en") ?? {
+      ProductTranslations?.find(
+        (t: {language: string}) => t.language === "en"
+      ) ?? {
         name: "",
         description: "",
       }
     )
-  }, [translations])
+  }, [ProductTranslations])
 
   const onSubmit = async (data: FieldValues) => {
     const formData = new FormData()
 
     const translations = languages.map((lang, index) => ({
       language: lang.code,
-      name: data.translations?.[index]?.name || "",
-      description: data.translations?.[index]?.description || "",
+      name: data.ProductTranslations?.[index]?.name || "",
+      description: data.ProductTranslations?.[index]?.description || "",
     }))
-
-    console.log("Translations Data", translations)
-
+    const cleanedVariants = (data.variants || []).map((variant: any) => ({
+      ...variant,
+      attributes: (variant.attributes || []).map((attr: any) => ({
+        ...attr,
+        value:
+          typeof attr.value === "object"
+            ? String(attr.value?.value ?? "")
+            : String(attr.value ?? ""),
+      })),
+    }))
     formData.append("name", enTranslation.name)
     formData.append("description", enTranslation.description)
     formData.append("slug", slugify(enTranslation.name))
@@ -86,10 +99,10 @@ export default function ProductForm({
     formData.append("weight", String(data.weight))
     formData.append("weightUnit", data.weightUnit)
     if (data.status) formData.append("status", data.status)
-    formData.append("translations", JSON.stringify(translations))
+    formData.append("ProductTranslations", JSON.stringify(translations))
     appendArrayFieldToFormData(formData, "variantFields", data.variantFields)
     appendJsonFieldToFormData(formData, "packages", data.packages)
-    appendJsonFieldToFormData(formData, "variants", data.variants)
+    appendJsonFieldToFormData(formData, "variants", cleanedVariants)
     appendJsonFieldToFormData(formData, "metadata", data.metadata)
     appendJsonFieldToFormData(formData, "bundleMetadata", data.bundleMetadata)
     if (Array.isArray(data.images)) {
@@ -100,22 +113,17 @@ export default function ProductForm({
       })
     }
 
-    try {
-      await onSubmitHandler(formData)
-      toast.success("Product successfully submitted!")
-    } catch (error) {
-      toast.error((error as Error).message || "Failed to submit product")
-    }
+    await onSubmitHandler(formData)
   }
 
   const isLanguageValid = (code: string, index: number): boolean => {
-    const values = watch(`translations.${index}`)
+    const values = watch(`ProductTranslations.${index}`)
     return !!values?.name?.trim() && !!values?.description?.trim()
   }
 
-  // const allValid = languages.every((lang, index) =>
-  //   isLanguageValid(lang.code, index)
-  // )
+  const allValid = languages.every((lang, index) =>
+    isLanguageValid(lang.code, index)
+  )
 
   return (
     <form
@@ -125,24 +133,6 @@ export default function ProductForm({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left Column */}
         <div className="space-y-6">
-          <input
-            type="text"
-            {...register("name")}
-            defaultValue={enTranslation.name}
-            disabled
-          />
-          <input
-            type="text"
-            {...register("description")}
-            defaultValue={enTranslation.description}
-            disabled
-          />
-          <input
-            type="text"
-            {...register("slug")}
-            defaultValue={slugify(enTranslation.name)}
-            disabled
-          />
           <Tabs defaultValue={languages[0].code} className="w-full">
             <TabsList>
               {languages.map((lang, index) => (
@@ -161,17 +151,13 @@ export default function ProductForm({
               const sourceLangIndex = languages.findIndex(
                 (l) => l.code !== lang.code
               )
-              const source = watch(`translations.${sourceLangIndex}`)
+              const source = watch(`ProductTranslations.${sourceLangIndex}`)
 
               return (
                 <TabsContent key={lang.code} value={lang.code}>
                   <DetailsFormSection
                     register={register}
                     setValue={setValue}
-                    fieldNames={{
-                      name: `translations.${index}.name`,
-                      description: `translations.${index}.description`,
-                    }}
                     label={`${t("product.entity")} (${lang.label})`}
                     customLabels={{
                       nameLabel: `${t("product.name")} (${lang.label})`,
@@ -185,32 +171,16 @@ export default function ProductForm({
                       name: source?.name || "",
                       description: source?.description || "",
                     }}
-                    errors={
-                      formState.errors.translations?.[index]
-                        ? Object.fromEntries(
-                            Object.entries(
-                              formState.errors.translations[index] as Record<
-                                string,
-                                unknown
-                              >
-                            ).map(([key, value]) => [
-                              key,
-                              {message: (value as {message?: string})?.message},
-                            ])
-                          )
-                        : {}
-                    }
+                    fieldNames={{
+                      name: `ProductTranslations.${index}.name`,
+                      description: `ProductTranslations.${index}.description`,
+                    }}
                   />
                 </TabsContent>
               )
             })}
           </Tabs>
 
-          <CategorySelector
-            categories={categories}
-            watch={watch}
-            setValue={setValue}
-          />
           <ShippingAndDelivery
             register={register}
             watch={watch}
@@ -229,14 +199,38 @@ export default function ProductForm({
             setValue={setValue}
             watch={watch}
           />
-          <Pricing watch={watch} setValue={setValue} />
-          <InventoryInputs register={register} />
-          <VariantManager
-            setValue={setValue}
-            getValues={getValues}
-            currency={watch("currency")}
-            control={control}
-          />
+
+          <div className="space-y-6">
+            <CategorySelector categories={categories} control={control} />
+            {/* Toggle Button */}
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-semibold">Product Type</h3>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setUseVariants((prev) => !prev)}
+              >
+                {useVariants ? "Switch to Simple Product" : "Use Variants"}
+              </Button>
+            </div>
+
+            {/* Conditional UI */}
+            {!useVariants ? (
+              <>
+                <Pricing watch={watch} setValue={setValue} />
+                <InventoryInputs register={register} />
+              </>
+            ) : (
+              <VariantManager
+                setValue={setValue}
+                getValues={getValues}
+                currency={watch("currency")}
+                control={control}
+                register={register}
+              />
+            )}
+          </div>
         </div>
       </div>
       {formState.errors &&
@@ -248,32 +242,21 @@ export default function ProductForm({
           ) : null
         )}
 
-      {formState.isSubmitting && (
-        <div className="text-center text-blue-500">
-          Submitting your product...
-        </div>
-      )}
-
-      {formState.isSubmitSuccessful && (
-        <div className="text-center text-green-500">
-          Product submitted successfully!
-        </div>
-      )}
-
-      {formState.isDirty &&
-        Object.entries(formState.dirtyFields).map(([field, value]) => (
-          <span key={field} className="text-blue-500 block">
-            {field} has been modified. {value ? "Yes" : "No"}
-          </span>
-        ))}
-
-      {formState.isValid && (
-        <div className="text-center text-green-500">All fields are valid!</div>
-      )}
-
       <div className="flex items-center gap-3 justify-end pt-8 border-t">
-        <Button type="submit">
-          {mode === "edit" ? "Update Product" : "Add Product"}
+        <Button
+          type="submit"
+          className="w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
+          disabled={
+            !!allValid || mode === "edit"
+              ? !formState.isDirty
+              : !formState.isValid || isDisabled
+          }
+        >
+          {!isDisabled
+            ? mode === "edit"
+              ? "Update Product"
+              : "Add Product"
+            : "Loading..."}
         </Button>
       </div>
     </form>

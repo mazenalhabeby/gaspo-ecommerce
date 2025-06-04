@@ -4,11 +4,29 @@ import {LinkButton} from "@/components/ui/link-button"
 import {NoResultsTable} from "@/components/NoResultsTable"
 import {Routes} from "@/lib/routes"
 import {PlusCircleIcon} from "lucide-react"
-import React from "react"
+import React, {useEffect} from "react"
 import {IoMdBarcode} from "react-icons/io"
 import {ProductColumns} from "../components/colums/ProductColums"
+import {useProductsWithDeleteManyProducts} from "@/hooks/use-products"
+import TablesPageSkeleton from "../components/loading/TablesPageSkeleton"
+import {toast} from "sonner"
 
 export default function ProductsClientPage() {
+  const {products, isLoading, error, deleteMany, isDeleting} =
+    useProductsWithDeleteManyProducts()
+
+  useEffect(() => {
+    if (error) {
+      toast("Failed to load products", {
+        description: error.message ?? "An unexpected error occurred.",
+      })
+    }
+  }, [error])
+
+  if (isLoading) {
+    return <TablesPageSkeleton />
+  }
+
   return (
     <React.Fragment>
       <main className="flex-1 overflow-y-auto">
@@ -17,8 +35,8 @@ export default function ProductsClientPage() {
             <div className="flex flex-col gap-4 p-4">
               <DataTable
                 columns={ProductColumns}
-                data={[]}
-                searchableColumns={["slug"]}
+                data={products ?? []}
+                searchableColumns={["name"]}
                 enableRowSelection
                 otherComponents={
                   <LinkButton
@@ -37,6 +55,8 @@ export default function ProductsClientPage() {
                     description="Add a new product to get started."
                   />
                 }
+                onDelete={deleteMany}
+                isDisabled={isDeleting}
               />
             </div>
           </div>

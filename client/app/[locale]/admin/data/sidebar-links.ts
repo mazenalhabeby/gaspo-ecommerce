@@ -1,21 +1,18 @@
 import {Routes} from "@/lib/routes"
 import {
-  LayoutDashboardIcon,
-  UsersIcon,
   ScanBarcodeIcon,
   ShoppingCartIcon,
   ChartColumnStackedIcon,
-  ContainerIcon,
-  SettingsIcon,
   PlusCircleIcon,
+  SettingsIcon,
 } from "lucide-react"
 
 const SidebarMainLinks = [
-  {
-    title: "Dashboard",
-    url: Routes.dashboard.dashboard,
-    icon: LayoutDashboardIcon,
-  },
+  // {
+  //   title: "Dashboard",
+  //   url: Routes.dashboard.dashboard,
+  //   icon: LayoutDashboardIcon,
+  // },
   {
     title: "Categories",
     url: Routes.dashboard.categories,
@@ -31,16 +28,16 @@ const SidebarMainLinks = [
     url: Routes.dashboard.orders,
     icon: ShoppingCartIcon,
   },
-  {
-    title: "Shipping",
-    url: Routes.dashboard.shipping,
-    icon: ContainerIcon,
-  },
-  {
-    title: "Users",
-    url: Routes.dashboard.users,
-    icon: UsersIcon,
-  },
+  // {
+  //   title: "Shipping",
+  //   url: Routes.dashboard.shipping,
+  //   icon: ContainerIcon,
+  // },
+  // {
+  //   title: "Users",
+  //   url: Routes.dashboard.users,
+  //   icon: UsersIcon,
+  // },
 ]
 
 const SidebarSecondaryLinks = [

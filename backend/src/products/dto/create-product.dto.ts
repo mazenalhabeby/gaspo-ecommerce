@@ -1,14 +1,5 @@
-import {
-  IsString,
-  IsNumber,
-  IsOptional,
-  IsEnum,
-  IsArray,
-  IsUUID,
-  IsObject,
-  ValidateNested,
-} from 'class-validator';
-import { Transform, Type } from 'class-transformer';
+import { IsString, IsNumber, IsOptional, IsEnum } from 'class-validator';
+import { Transform } from 'class-transformer';
 import { WeightUnit } from '@Prisma/client';
 
 export class PackageDto {
@@ -67,16 +58,10 @@ export class VariantDto {
   stock: number;
 
   @IsOptional()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => AttributeDto)
-  attributes?: AttributeDto[];
+  attributes?: any;
 
   @IsOptional()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => ProductVariantTranslationDto)
-  translations?: ProductVariantTranslationDto[];
+  ProductTranslations?: any;
 }
 
 export class ProductTranslationDto {
@@ -98,7 +83,7 @@ export class ProductTranslationDto {
   seoDesc?: string;
 
   @IsOptional()
-  descriptionJson?: any; // Optional for rich-text editors
+  descriptionJson?: any;
 }
 
 export class CreateProductDto {
@@ -119,19 +104,22 @@ export class CreateProductDto {
   @IsString()
   seoDesc?: string;
 
-  @IsUUID()
+  @IsString()
   categoryId: string;
 
   @IsString()
   currency: string;
 
+  @IsOptional()
   @IsString()
   sku: string;
 
+  @IsOptional()
   @Transform(({ value }: { value: string }) => parseFloat(value))
   @IsNumber()
   price: number;
 
+  @IsOptional()
   @Transform(({ value }: { value: string }) => parseInt(value))
   @IsNumber()
   stock: number;
@@ -143,33 +131,21 @@ export class CreateProductDto {
   @IsEnum(WeightUnit)
   weightUnit: WeightUnit;
 
-  @IsArray()
-  @IsString({ each: true })
-  variantFields: string[];
+  @IsOptional()
+  variantFields?: string | string[];
 
   @IsOptional()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => PackageDto)
-  packages?: PackageDto[];
+  packages?: string | PackageDto[];
 
   @IsOptional()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => VariantDto)
-  variants?: VariantDto[];
+  variants?: string | VariantDto[];
 
   @IsOptional()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => ProductTranslationDto)
-  translations?: ProductTranslationDto[];
+  ProductTranslations?: string | ProductTranslationDto[];
 
   @IsOptional()
-  @IsObject()
-  metadata?: Record<string, any>;
+  metadata?: string | Record<string, any>;
 
   @IsOptional()
-  @IsObject()
-  bundleMetadata?: Record<string, any>;
+  bundleMetadata?: string | Record<string, any>;
 }

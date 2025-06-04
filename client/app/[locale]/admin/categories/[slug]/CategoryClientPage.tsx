@@ -11,7 +11,8 @@ import CategoryPageSkeleton from "../../components/loading/CategoryPageSkeleton"
 import {NotFoundView} from "@/components/NotFoundView"
 import {logo} from "@/assets"
 import {useSupportedLanguages} from "@/hooks/use-supported-languages"
-import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs"
+import {TabsContent} from "@/components/ui/tabs"
+import {TranslationTabs} from "@/components/TranslationTabs"
 
 export default function CategoryClientPage({slug}: {slug: string}) {
   const {data: category, isLoading, error} = useCategory(slug)
@@ -60,17 +61,10 @@ export default function CategoryClientPage({slug}: {slug: string}) {
             size="sm"
           />
         </div>
-        <Tabs defaultValue={languages[0].code} className="w-full">
-          <TabsList className="mb-4">
-            {languages.map((lang) => (
-              <TabsTrigger key={lang.code} value={lang.code}>
-                {lang.label.toUpperCase()}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-
+        <TranslationTabs languages={languages}>
+          {" "}
           {languages.map((lang, index) => (
-            <TabsContent key={lang.code} value={lang.code}>
+            <TabsContent key={index} value={lang.code}>
               <section className="border p-4 rounded-md bg-white max-w-4xl mx-auto">
                 <div className="flex flex-col lg:flex-row items-center justify-center gap-4">
                   <Image
@@ -82,11 +76,14 @@ export default function CategoryClientPage({slug}: {slug: string}) {
                   />
                   <div className="flex-1">
                     <p className="text-lg font-semibold">
-                      {category?.translations[index]?.name}
+                      {category?.translations.find(
+                        (t) => t.language === lang.code
+                      )?.name || "No name"}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      {category?.translations[index]?.description ||
-                        "No description"}
+                      {category?.translations.find(
+                        (t) => t.language === lang.code
+                      )?.description || "No description"}
                     </p>
                   </div>
                 </div>
@@ -115,7 +112,7 @@ export default function CategoryClientPage({slug}: {slug: string}) {
               </section>
             </TabsContent>
           ))}
-        </Tabs>
+        </TranslationTabs>
       </div>
       {/* <div className="flex flex-col gap-4 p-4">
         <DataTable

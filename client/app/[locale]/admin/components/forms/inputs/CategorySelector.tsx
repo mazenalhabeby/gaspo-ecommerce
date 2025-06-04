@@ -12,8 +12,8 @@ import {PlusCircleIcon} from "lucide-react"
 import {dashboardRoutes} from "@/lib/routes"
 import {beautifySlug} from "@/lib/utils"
 import Image from "next/image"
-import {UseFormSetValue, UseFormWatch} from "react-hook-form"
-import {ProductCreate} from "@/lib/schema/products.schema"
+import {Control, useController} from "react-hook-form"
+import {ProductFormValues} from "@/lib/schema/products.schema"
 
 interface CategorySelectorProps {
   categories: {
@@ -21,15 +21,20 @@ interface CategorySelectorProps {
     slug: string
     imageUrl?: string
   }[]
-  setValue: UseFormSetValue<ProductCreate>
-  watch: UseFormWatch<ProductCreate>
+  control: Control<ProductFormValues>
 }
 
 export default function CategorySelector({
   categories,
-  setValue,
-  watch,
+  control,
 }: CategorySelectorProps) {
+  const {
+    field: {value, onChange},
+  } = useController({
+    name: "categoryId",
+    control,
+    defaultValue: "",
+  })
   return (
     <div>
       <h3 className="info-card-title">Category</h3>
@@ -38,12 +43,7 @@ export default function CategorySelector({
           <Label className="info-card-label">
             Product Category <RequiredMark style="star" />
           </Label>
-          <Select
-            value={watch("categoryId") ?? ""}
-            onValueChange={(val) => {
-              setValue("categoryId", val)
-            }}
-          >
+          <Select value={value} onValueChange={onChange}>
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select category" />
             </SelectTrigger>

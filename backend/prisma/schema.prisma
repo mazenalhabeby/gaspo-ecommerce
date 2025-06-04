@@ -164,9 +164,9 @@ model Product {
   slug                String               @unique
   description         String
   currency            String?              @default("EUR")
-  price               Float
-  stock               Int
-  weight              Int
+  price               Float?
+  stock               Int?
+  weight              Int?
   weightUnit          WeightUnit           @default(KG)
   sku                 String?              @unique
   metadata            Json?
@@ -180,7 +180,7 @@ model Product {
   Wishlists           Wishlist[]
   StockMovements      StockMovement[]
   ProductTranslations ProductTranslation[]
-  Category            Category?            @relation(fields: [categoryId], references: [id])
+  categories          Category?            @relation(fields: [categoryId], references: [id])
   categoryId          String?
   bundles             Product[]            @relation("BundleProducts")
   bundledIn           Product[]            @relation("BundleProducts")

@@ -5,14 +5,12 @@ import { ProductsModule } from './products/products.module';
 import { CategoriesModule } from './categories/categories.module';
 import { CartModule } from './cart/cart.module';
 import { WishlistModule } from './wishlist/wishlist.module';
-import { OrdersModule } from './orders/orders.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { DiscountsModule } from './discounts/discounts.module';
 import { StockModule } from './stock/stock.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { ActivityLogModule } from './activity-log/activity-log.module';
 import { ThrottlerModule } from '@nestjs/throttler';
-import { RedisService } from './common';
 import { ConfigModule } from '@nestjs/config';
 
 @Module({
@@ -30,7 +28,6 @@ import { ConfigModule } from '@nestjs/config';
     CategoriesModule,
     CartModule,
     WishlistModule,
-    OrdersModule,
     ReviewsModule,
     DiscountsModule,
     StockModule,
@@ -38,7 +35,7 @@ import { ConfigModule } from '@nestjs/config';
     ActivityLogModule,
   ],
   controllers: [],
-  providers: [RedisService],
+  providers: [],
 })
 export class AppModule {}
 // implements NestModule {

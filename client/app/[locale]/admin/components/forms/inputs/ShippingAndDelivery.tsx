@@ -18,13 +18,13 @@ import {
   Control,
   useFieldArray,
 } from "react-hook-form"
-import {ProductCreate} from "@/lib/schema/products.schema"
+import {ProductFormValues} from "@/lib/schema/products.schema"
 
 interface ShippingAndDeliveryProps {
-  register: UseFormRegister<ProductCreate>
-  setValue: UseFormSetValue<ProductCreate>
-  watch: UseFormWatch<ProductCreate>
-  control: Control<ProductCreate>
+  register: UseFormRegister<ProductFormValues>
+  setValue: UseFormSetValue<ProductFormValues>
+  watch: UseFormWatch<ProductFormValues>
+  control: Control<ProductFormValues>
 }
 
 export default function ShippingAndDelivery({
@@ -165,7 +165,6 @@ export default function ShippingAndDelivery({
             onClick={() =>
               append({
                 id: crypto.randomUUID(),
-                weight: 0,
                 length: 0,
                 breadth: 0,
                 width: 0,

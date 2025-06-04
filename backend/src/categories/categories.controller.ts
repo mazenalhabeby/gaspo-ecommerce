@@ -13,9 +13,9 @@ import {
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto, TranslationDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
-import { S3Interceptor } from 'src/common/interceptors/s3.interceptor';
 import { DeleteCategoriesDto } from './dto/delete-caredories.dto';
 import { ParseJsonPipe } from 'src/common';
+import { S3Interceptor } from 'src/common/interceptors/s3.interceptor';
 
 @Controller('categories')
 export class CategoriesController {
@@ -23,18 +23,22 @@ export class CategoriesController {
 
   @Post()
   @UseInterceptors(
-    S3Interceptor('categories', [{ name: 'image', maxCount: 1 }]),
+    S3Interceptor('categories', [{ name: 'image', maxCount: 1 }], {
+      fallbackNameField: 'name', // use name from body for image naming
+    }),
   )
   create(
     @UploadedFiles() files: { image?: Express.Multer.File[] },
     @Body('translations', ParseJsonPipe) translations: TranslationDto[],
     @Body() categoryData: Omit<CreateCategoryDto, 'translations'>,
   ) {
-    const file = files.image?.[0];
-    if (!file) throw new BadRequestException('Image upload failed');
+    const file = files?.image?.[0];
+    if (!file) {
+      throw new BadRequestException('Image upload failed');
+    }
 
     const s3File = file as Express.Multer.File & { location?: string };
-    if (typeof s3File.location !== 'string') {
+    if (!s3File.location) {
       throw new BadRequestException('Image upload failed: missing S3 location');
     }
 
@@ -58,9 +62,11 @@ export class CategoriesController {
 
   @Patch(':slug')
   @UseInterceptors(
-    S3Interceptor('categories', [{ name: 'image', maxCount: 1 }]),
+    S3Interceptor('categories', [{ name: 'image', maxCount: 1 }], {
+      fallbackNameField: 'name',
+    }),
   )
-  async updateCategory(
+  update(
     @Param('slug') slug: string,
     @UploadedFiles() files: { image?: Express.Multer.File[] },
     @Body('translations', ParseJsonPipe) translations: TranslationDto[],
@@ -69,8 +75,7 @@ export class CategoriesController {
     const file = files?.image?.[0] as Express.Multer.File & {
       location?: string;
     };
-
-    const newImageUrl = file?.location;
+    const newImageUrl = file?.location ?? undefined;
 
     const dto: UpdateCategoryDto = {
       ...categoryData,
@@ -87,7 +92,6 @@ export class CategoriesController {
 
   @Delete()
   removeMany(@Body() dto: DeleteCategoriesDto) {
-    console.log(dto);
     return this.categoriesService.removeMany(dto.slugs);
   }
 }

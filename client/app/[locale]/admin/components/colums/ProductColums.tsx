@@ -3,21 +3,12 @@
 
 import {ColumnDef} from "@tanstack/react-table"
 import {Checkbox} from "@/components/ui/checkbox"
-import {Button} from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu"
-import {MoreHorizontal} from "lucide-react"
 import Link from "next/link"
 import {dashboardRoutes} from "@/lib/routes"
-import {Product} from "@/lib/schema/products.schema"
+import {ProductResponse} from "@/lib/schema/products.schema"
+import {ProductActions} from "./ProductActions"
 
-export const ProductColumns: ColumnDef<Product>[] = [
+export const ProductColumns: ColumnDef<ProductResponse>[] = [
   {
     id: "select",
     header: ({table}) => (
@@ -65,7 +56,8 @@ export const ProductColumns: ColumnDef<Product>[] = [
   {
     accessorKey: "price",
     header: "Price",
-    cell: ({row}) => `$ ${row.original.price.toFixed(2)}`,
+    cell: ({row}) =>
+      `${row.original.currency} ${row.original.price.toFixed(2)}`,
   },
   {
     accessorKey: "stock",
@@ -77,36 +69,7 @@ export const ProductColumns: ColumnDef<Product>[] = [
     header: () => <span className="sr-only">Actions</span>,
     cell: ({row}) => {
       const product = row.original
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="w-4 h-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem asChild>
-              <Link href={dashboardRoutes.product(product.slug)}>
-                View Product
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href={dashboardRoutes.productEdit(product.slug)}>
-                Edit Product
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={() => alert(`Delete: ${product.name}`)}
-              className="text-red-500"
-            >
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )
+      return <ProductActions product={product} />
     },
   },
 ]

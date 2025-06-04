@@ -10,6 +10,7 @@ export * from './interfaces/jwt-payload.interface';
 export * from './interfaces/request-with-cookies.interface';
 export * from './interfaces/request-with-user.interface';
 export * from './middleware/blacklist.middleware';
+export * from './modules/aws.module';
 export * from './pipes/parse-json.pipe';
 export * from './services/prisma.service';
 export * from './services/redis.service';

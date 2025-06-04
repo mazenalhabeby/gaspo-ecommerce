@@ -7,48 +7,54 @@ import {useRouter} from "next/navigation"
 import {useSupportedLanguages} from "@/hooks/use-supported-languages"
 import {useForm} from "react-hook-form"
 import {zodResolver} from "@hookform/resolvers/zod"
-import {ProductCreate, productCreateSchema} from "@/lib/schema/products.schema"
 import {initTranslationFieldsProducts} from "@/lib/utils"
+import {productCreateSchema} from "@/lib/schema/products.schema"
+import {useCreateProduct} from "@/hooks/use-products"
 
 export default function ProductClientCreatePage() {
   const notify = useAppToast()
   const router = useRouter()
   const languages = useSupportedLanguages()
+  const {mutateAsync: createProduct, isPending} = useCreateProduct()
 
-  const form = useForm<ProductCreate>({
+  const form = useForm({
     resolver: zodResolver(productCreateSchema),
     mode: "onChange",
     defaultValues: {
-      name: "",
-      slug: "",
-      description: "",
       currency: "USD",
       price: 0,
       stock: 0,
       weight: 0,
+      weightUnit: "KG",
+      status: "DRAFT",
       metadata: {},
-      categoryId: "",
-      sku: "",
-      seoTitle: "",
-      seoDesc: "",
-      weightUnit: "kg",
+      packages: [
+        {
+          id: crypto.randomUUID(),
+          length: 0,
+          breadth: 0,
+          width: 0,
+          unit: "in",
+        },
+      ],
+      categoryId: "", // must match `.optional().nullable()`
+      sku: null, // match .optional().nullable()
+      seoTitle: null,
+      seoDesc: null,
       images: [],
       bundles: [],
-      createdById: "",
-      status: "draft",
-
-      translations: initTranslationFieldsProducts(languages),
+      createdById: null,
+      ProductTranslations: initTranslationFieldsProducts(languages),
       variantFields: [],
+      variants: undefined,
+      bundleMetadata: undefined,
     },
   })
 
   const handleAddProduct = async (data: FormData) => {
     try {
-      console.log(data)
-      notify({
-        message: "Product successfully created!",
-        type: "success",
-      })
+      await createProduct(data)
+      notify({message: "Product successfully created!", type: "success"})
       router.push("/admin/products")
     } catch (error) {
       notify({
@@ -64,6 +70,7 @@ export default function ProductClientCreatePage() {
       form={form}
       languages={languages}
       mode="add"
+      isDisabled={isPending}
     />
   )
 }

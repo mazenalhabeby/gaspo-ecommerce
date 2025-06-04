@@ -6,8 +6,16 @@ import * as path from 'path';
 import { S3Client } from '@aws-sdk/client-s3';
 
 type FieldConfig = { name: string; maxCount: number };
+type Options = {
+  useSlugFolder?: boolean; // whether to create nested folders by slug
+  fallbackNameField?: string; // optional body field to fallback as file name (e.g., 'name')
+};
 
-export function S3Interceptor(folder: string, fields: FieldConfig[]) {
+export function S3Interceptor(
+  baseFolder: string,
+  fields: FieldConfig[],
+  options?: Options,
+) {
   return FileFieldsInterceptor(fields, {
     storage: multerS3({
       s3: new S3Client({
@@ -20,29 +28,37 @@ export function S3Interceptor(folder: string, fields: FieldConfig[]) {
 
       bucket: process.env.S3_BUCKET!,
       key: (req: Request, file, cb) => {
-        // 1. Extract category name from body or fallback
         const body = req.body as Record<string, any> | undefined;
-        const rawName =
-          (body?.name as string | undefined)?.toLowerCase() ?? 'image';
 
-        // 2. Sanitize it to safe filename
-        const safeName = rawName
+        // 1. Try to get a slug or fallback name from body
+        const slugOrName = options?.useSlugFolder
+          ? ((body?.slug as string | undefined) ?? 'unknown')
+          : ((body?.[options?.fallbackNameField || 'name'] as
+              | string
+              | undefined) ?? 'image');
+
+        const safeName = slugOrName
+          .toLowerCase()
           .trim()
           .replace(/\s+/g, '-')
           .replace(/[^a-z0-9-]/gi, '');
 
-        // 3. Get file extension
-        const ext = path.extname(file.originalname); // e.g., .jpg
+        const ext = path.extname(file.originalname);
+        const uuid = randomUUID();
 
-        // 4. Create unique filename
-        const filename = `${folder}/${safeName}-${randomUUID()}${ext}`;
+        // 2. Determine final path (flat or nested)
+        const fullPath = options?.useSlugFolder
+          ? `${baseFolder}/temp-${safeName}/image-${uuid}${ext}`
+          : `${baseFolder}/${safeName}-${uuid}${ext}`;
 
-        cb(null, filename);
+        cb(null, fullPath);
       },
     }),
+
     limits: {
-      fileSize: 5 * 1024 * 1024, // 5MB
+      fileSize: 5 * 1024 * 1024, // 5MB max
     },
+
     fileFilter: (req, file, cb) => {
       const allowed = [
         'image/jpeg',

@@ -65,20 +65,10 @@ export const useEditCategory = (slug: string) => {
 }
 
 export const useCategoryEditor = (slug: string) => {
-  const queryClient = useQueryClient()
-
   const {data, isLoading, isError, error} = useCategory(slug)
 
-  const {mutateAsync: updateCategory, isPending: isUpdating} = useMutation<
-    CategoryResponseType,
-    ZodiosError,
-    FormData
-  >({
-    mutationFn: (formData) => EditCategory(slug, formData),
-    onSuccess: () => {
-      queryClient.invalidateQueries({queryKey: ["categories"]})
-    },
-  })
+  const {mutateAsync: updateCategory, isPending: isUpdating} =
+    useEditCategory(slug)
 
   return {
     category: data,

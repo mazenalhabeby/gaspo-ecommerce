@@ -2,6 +2,7 @@
 import {FaLocationDot} from "react-icons/fa6"
 import {MdPermPhoneMsg, MdEmail} from "react-icons/md"
 import {paypal, sofort, vorkasse} from "@/assets"
+import {Routes} from "@/lib/routes"
 
 const NavbarLinks = [
   {name: "navbar.links.home", href: "carousel"},
@@ -9,7 +10,7 @@ const NavbarLinks = [
   {name: "navbar.links.products", href: "products"},
   {name: "navbar.links.partners", href: "partners"},
   {name: "navbar.links.contact", href: "contact"},
-  //   {name: "navbar.links.shop", href: shoppingRoutes.shop},
+  {name: "navbar.links.shop", href: Routes.shopping.shop},
 ]
 
 const NavbarContact = [
