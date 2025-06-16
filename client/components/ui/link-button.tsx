@@ -1,10 +1,10 @@
 "use client"
 
 import * as React from "react"
-import Link from "next/link"
 import {cn} from "@/lib/utils"
 import {Button, buttonVariants} from "@/components/ui/button"
 import type {VariantProps} from "class-variance-authority"
+import {NProgressLink} from "../NProgressLink"
 
 interface LinkButtonProps
   extends React.ComponentProps<"button">,
@@ -25,7 +25,7 @@ export function LinkButton({
 }: LinkButtonProps) {
   return (
     <Button asChild className={cn("w-max", className)} {...props}>
-      <Link href={href}>
+      <NProgressLink href={href}>
         <div className="flex items-center gap-2 justify-center">
           {icon}
           <span
@@ -34,7 +34,7 @@ export function LinkButton({
             {label}
           </span>
         </div>
-      </Link>
+      </NProgressLink>
     </Button>
   )
 }

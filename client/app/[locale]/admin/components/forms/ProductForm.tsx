@@ -16,7 +16,6 @@ import {ImageUploader} from "@/components/form-inputs/ImageUploader"
 import Pricing from "./inputs/Pricing"
 import InventoryInputs from "./inputs/InventoryInputs"
 import VariantManager from "./inputs/VariantManager"
-import {useCategories} from "@/hooks/use-categories"
 import {Language} from "@/i18n/routing"
 import {useTranslations} from "next-intl"
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs"
@@ -42,7 +41,6 @@ export default function ProductForm({
   isDisabled,
 }: ProductFormProps) {
   const [useVariants, setUseVariants] = useState(false)
-  const {data: categories = []} = useCategories()
   const t = useTranslations()
 
   const {
@@ -201,7 +199,7 @@ export default function ProductForm({
           />
 
           <div className="space-y-6">
-            <CategorySelector categories={categories} control={control} />
+            <CategorySelector control={control} />
             {/* Toggle Button */}
             <div className="flex justify-between items-center">
               <h3 className="text-lg font-semibold">Product Type</h3>
@@ -235,7 +233,10 @@ export default function ProductForm({
       </div>
       {formState.errors &&
         Object.entries(formState.errors).map(([field, error]) =>
-          error && "message" in error ? (
+          error &&
+          typeof error === "object" &&
+          error !== null &&
+          "message" in error ? (
             <span key={field} className="text-red-500 block">
               {field}: {(error as {message?: string}).message}
             </span>

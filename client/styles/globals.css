@@ -169,3 +169,16 @@ input[type="number"] {
 .info-card-title {
   @apply font-semibold uppercase text-gray-800 p-2;
 }
+
+#nprogress .spinner {
+  display: none;
+}
+
+#nprogress .bar {
+  background: var(--color-primary);
+  height: 3px;
+}
+
+#nprogress .peg {
+  box-shadow: 0 0 8px #10b981, 0 0 4px #10b981;
+}

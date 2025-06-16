@@ -5,10 +5,10 @@ import Image from "next/image"
 import {Trash2} from "lucide-react"
 import {useCartStore} from "@/store/cartStore"
 import {FaRegHeart} from "react-icons/fa6"
-import Link from "next/link"
 import {useDelayedLoading} from "@/hooks/useDelayedLoading"
 import {shoppingRoutes} from "@/lib/routes"
 import FavoritesPageSkeleton from "../components/loading/FavoritesPageSkeleton"
+import {NProgressLink} from "@/components/NProgressLink"
 export default function FavoritesClientPage() {
   const {favorites, toggleFavorite} = useFavoritesStore()
   const {addToCart} = useCartStore()
@@ -27,12 +27,12 @@ export default function FavoritesClientPage() {
           <p className="text-gray-500 text-sm">
             No items in the favorites yet.
           </p>
-          <Link
+          <NProgressLink
             href={shoppingRoutes.shop}
             className="bg-blue-500 text-white p-2 rounded"
           >
             Browse Products
-          </Link>
+          </NProgressLink>
         </div>
       ) : (
         <div className="w-full max-w-3xl mx-auto space-y-6">
@@ -58,12 +58,12 @@ export default function FavoritesClientPage() {
                 <div className="flex-1 space-y-2">
                   <div className="flex justify-between items-start">
                     <div>
-                      <Link
+                      <NProgressLink
                         href={`/shop/${item.slug}`}
                         className="font-semibold"
                       >
                         {item.name}
-                      </Link>
+                      </NProgressLink>
                       <p className="text-sm text-gray-500 line-through">
                         ${(item.price * 1.4).toFixed(2)}
                       </p>

@@ -25,14 +25,25 @@ export default function ShopClientPage() {
   const filteredProducts = useMemo(() => {
     return category === "All"
       ? products
-      : products?.filter((p) => p.categoryId === category)
+      : products?.items.filter((p) => p.categoryId === category)
   }, [category, products])
 
   const visibleProducts = useMemo(() => {
-    return filteredProducts?.slice(0, visibleCount)
+    if (Array.isArray(filteredProducts)) {
+      return filteredProducts.slice(0, visibleCount)
+    } else if (filteredProducts && Array.isArray(filteredProducts.items)) {
+      return filteredProducts.items.slice(0, visibleCount)
+    }
+    return []
   }, [filteredProducts, visibleCount])
 
-  const canLoadMore = visibleCount < (filteredProducts?.length ?? 0)
+  const canLoadMore =
+    visibleCount <
+    (Array.isArray(filteredProducts)
+      ? filteredProducts.length
+      : filteredProducts && Array.isArray(filteredProducts.items)
+      ? filteredProducts.items.length
+      : 0)
 
   return (
     <main className="py-10">
@@ -40,7 +51,7 @@ export default function ShopClientPage() {
       <CategoryFiltersSection
         category={category}
         setCategory={setCategory}
-        allProducts={products ?? []}
+        allProducts={products?.items ?? []}
         isStickySmall={false}
       />
 
@@ -52,7 +63,7 @@ export default function ShopClientPage() {
               <ProductCardSkeleton key={i} />
             ))}
           </div>
-        ) : products && products.length === 0 ? (
+        ) : products && products.items.length === 0 ? (
           <div className="col-span-full flex flex-col items-center gap-2 py-10">
             <Image
               src={logo}

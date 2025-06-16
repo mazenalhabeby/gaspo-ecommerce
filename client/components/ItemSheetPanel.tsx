@@ -1,7 +1,6 @@
 "use client"
 
 import {useEffect, useState, ReactNode} from "react"
-import Link from "next/link"
 import {
   Sheet,
   SheetTrigger,
@@ -12,6 +11,7 @@ import {
   SheetDescription,
 } from "@/components/ui/sheet"
 import DropdownItem from "@/components/DropdownItem"
+import {NProgressLink} from "./NProgressLink"
 
 type Item = {
   id: string
@@ -107,13 +107,14 @@ export default function ItemSheetPanel({
 
         {items.length > 0 && (
           <SheetFooter className="mt-6">
-            <Link
-              href={linkHref}
-              onClick={() => setOpen(false)}
-              className={`block w-full text-center ${badgeColor} hover:brightness-90 text-white font-medium py-2 rounded transition`}
-            >
-              {linkLabel}
-            </Link>
+            <div onClick={() => setOpen(false)} className="block w-full">
+              <NProgressLink
+                href={linkHref}
+                className={`w-full text-center ${badgeColor} hover:brightness-90 text-white font-medium py-2 rounded transition block`}
+              >
+                {linkLabel}
+              </NProgressLink>
+            </div>
           </SheetFooter>
         )}
       </SheetContent>

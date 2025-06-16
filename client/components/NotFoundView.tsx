@@ -1,6 +1,6 @@
-import Link from "next/link"
 import {cn} from "@/lib/utils"
 import * as React from "react"
+import {NProgressLink} from "./NProgressLink"
 
 interface NotFoundViewProps {
   title?: string
@@ -32,9 +32,9 @@ export const NotFoundView: React.FC<NotFoundViewProps> = ({
       <div className="text-base font-semibold">{title}</div>
       <div className="text-sm">{message}</div>
       {href && (
-        <Link href={href} className="text-sm text-primary underline">
+        <NProgressLink href={href} className="text-sm text-primary underline">
           {hrefLabel}
-        </Link>
+        </NProgressLink>
       )}
       {children}
     </div>

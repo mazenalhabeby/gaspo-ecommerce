@@ -6,7 +6,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { Prisma } from '@Prisma/client';
+import { Prisma } from '@prisma/client';
 
 export function handlePrismaError(
   error: unknown,

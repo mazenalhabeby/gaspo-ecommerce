@@ -5,10 +5,10 @@ import {LiaCartPlusSolid} from "react-icons/lia"
 import QuantityInput from "@/components/QuantityInput"
 import RatingStars from "@/components/RatingStars"
 import FavoriteButton from "@/components/FavoriteButton"
-import {ProductResponse} from "@/lib/schema/products.schema"
+import {ProductDetailType} from "@/lib/schema/products.schema"
 
 interface Props {
-  product: ProductResponse
+  product: ProductDetailType
   attributeFields: string[]
   selectedAttributes: Record<string, string>
   setSelectedAttributes: (
@@ -18,7 +18,7 @@ interface Props {
   ) => void
   quantity: number
   setQuantity: (qty: number) => void
-  selectedVariant?: NonNullable<ProductResponse["variants"]>[number]
+  selectedVariant?: NonNullable<ProductDetailType["variants"]>[number]
   handleAddToCart: () => void
 }
 
@@ -63,109 +63,58 @@ export default function ProductInfo({
         </div>
       </div>
 
-      {/* Availability */}
-      {/* <p
-        className={`text-sm font-medium ${
-          isAvailable ? "text-green-600" : "text-gray-400"
-        }`}
-      >
-        <span
-          className={`inline-block w-2 h-2 mr-2 rounded-full ${
-            isAvailable ? "bg-green-600" : "bg-gray-400"
-          }`}
-        ></span>
-        {isAvailable ? "Available now" : "Out of stock"}
-      </p> */}
-
       {/* Variant Selection */}
       {attributeFields.map((field) => {
         const options = Array.from(
-          new Set(
+          new Map(
             product.variants
               ?.flatMap((v) =>
                 v.attributes
-                  ?.filter((a) => a.name === field)
+                  ?.filter((a) => a.value.name === field)
                   .map((a) => a.value)
               )
-              .filter(Boolean)
-          )
+              .map((val) => [val.value, val]) // Map key = "Natural", value = object
+          ).values()
         )
 
         return (
           <div key={field} className="mb-4">
             <label className="font-semibold block mb-1 capitalize">
-              {(() => {
-                // Try to find the attribute with this field as name
-                const attr = product.variants?.[0]?.attributes?.find(
-                  (a) => a.name === field
-                )
-                if (attr) {
-                  try {
-                    const parsed = JSON.parse(attr.value)
-                    if (parsed && typeof parsed.name === "string") {
-                      return parsed.name
-                    }
-                  } catch {
-                    // Not a JSON string, fallback
-                  }
-                }
-                return field
-              })()}
+              {field.charAt(0).toUpperCase() + field.slice(1)}
             </label>
             <div className="flex flex-wrap gap-2">
-              {Array.from(
-                new Map(
-                  options.map((option) => {
-                    let displayValue = option
-                    try {
-                      const parsed = JSON.parse(option as string)
-                      if (parsed && typeof parsed.value === "string") {
-                        displayValue = parsed.value
-                      }
-                    } catch {
-                      // Not a JSON string, use as is
-                    }
-                    return [displayValue, option] as [string, string]
-                  })
-                ).values()
-              ).map((option) => (
+              {options.map((option) => (
                 <button
-                  key={option}
-                  onClick={() => handleSelect(field, option!)}
+                  key={`${field}-${option.value}`}
+                  onClick={() => handleSelect(field, option.value)}
                   disabled={
                     !product.variants?.some(
                       (v) =>
                         v.attributes?.some(
-                          (a) => a.name === field && a.value === option
+                          (a) =>
+                            a.value.name === field &&
+                            a.value.value === option.value
                         ) && v.stock > 0
                     )
                   }
                   className={`px-4 py-1 border text-sm rounded capitalize ${
-                    selectedAttributes[field] === option
+                    selectedAttributes[field] === option.value
                       ? "bg-primary text-white"
                       : "bg-white text-gray-800 hover:bg-gray-100"
                   } ${
                     !product.variants?.some(
                       (v) =>
                         v.attributes?.some(
-                          (a) => a.name === field && a.value === option
+                          (a) =>
+                            a.value.name === field &&
+                            a.value.value === option.value
                         ) && v.stock > 0
                     )
                       ? "opacity-50 cursor-not-allowed"
                       : ""
                   }`}
                 >
-                  {(() => {
-                    try {
-                      const parsed = JSON.parse(option as string)
-                      if (parsed && typeof parsed.value === "string") {
-                        return parsed.value
-                      }
-                    } catch {
-                      // Not a JSON string, use as is
-                    }
-                    return option
-                  })()}
+                  {option.value}
                 </button>
               ))}
             </div>

@@ -1,6 +1,6 @@
 import { IsString, IsNumber, IsOptional, IsEnum } from 'class-validator';
-import { Transform } from 'class-transformer';
-import { WeightUnit } from '@Prisma/client';
+import { Transform, Type } from 'class-transformer';
+import { WeightUnit } from '@prisma/client';
 
 export class PackageDto {
   @Transform(({ value }: { value: string }) => parseFloat(value))
@@ -58,10 +58,15 @@ export class VariantDto {
   stock: number;
 
   @IsOptional()
-  attributes?: any;
+  @Type(() => AttributeDto)
+  attributes?: AttributeDto[];
 
   @IsOptional()
-  ProductTranslations?: any;
+  @Type(() => ProductVariantTranslationDto)
+  ProductTranslations?: ProductVariantTranslationDto[];
+
+  @IsOptional()
+  metadata?: Record<string, unknown>;
 }
 
 export class ProductTranslationDto {
@@ -112,17 +117,17 @@ export class CreateProductDto {
 
   @IsOptional()
   @IsString()
-  sku: string;
+  sku?: string;
 
   @IsOptional()
   @Transform(({ value }: { value: string }) => parseFloat(value))
   @IsNumber()
-  price: number;
+  price?: number;
 
   @IsOptional()
   @Transform(({ value }: { value: string }) => parseInt(value))
   @IsNumber()
-  stock: number;
+  stock?: number;
 
   @Transform(({ value }: { value: string }) => parseFloat(value))
   @IsNumber()
@@ -132,16 +137,29 @@ export class CreateProductDto {
   weightUnit: WeightUnit;
 
   @IsOptional()
-  variantFields?: string | string[];
+  @Type(() => AttributeDto)
+  variantFields?: string[];
 
   @IsOptional()
-  packages?: string | PackageDto[];
+  @Type(() => PackageDto)
+  packages?: PackageDto[];
 
   @IsOptional()
-  variants?: string | VariantDto[];
+  @Type(() => VariantDto)
+  variants?: VariantDto[];
 
   @IsOptional()
-  ProductTranslations?: string | ProductTranslationDto[];
+  @Transform(({ value }) => {
+    try {
+      const parsed: unknown =
+        typeof value === 'string' ? JSON.parse(value) : value;
+      return Array.isArray(parsed) ? (parsed as ProductTranslationDto[]) : [];
+    } catch {
+      return [];
+    }
+  })
+  @Type(() => ProductTranslationDto)
+  ProductTranslations?: ProductTranslationDto[];
 
   @IsOptional()
   metadata?: string | Record<string, any>;

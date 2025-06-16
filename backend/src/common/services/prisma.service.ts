@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { OnModuleDestroy, OnModuleInit } from '@nestjs/common';
-import { PrismaClient } from '@Prisma/client';
+import { PrismaClient } from '@prisma/client';
 
 export class PrismaService
   extends PrismaClient

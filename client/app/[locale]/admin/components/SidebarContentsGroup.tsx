@@ -5,8 +5,8 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
 } from "@/components/ui/sidebar"
-import Link from "next/link"
 import {LucideIcon} from "lucide-react"
+import {NProgressLink} from "@/components/NProgressLink"
 
 type SidebarContentsItem = {
   title: string
@@ -26,10 +26,13 @@ export const SidebarContentsGroup = ({
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton asChild tooltip={item.title}>
-                <Link href={item.url} className="flex items-center gap-2">
+                <NProgressLink
+                  href={item.url}
+                  className="flex items-center gap-2"
+                >
                   {item.icon && <item.icon className="h-4 w-4" />}
                   <span>{item.title}</span>
-                </Link>
+                </NProgressLink>
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}

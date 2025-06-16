@@ -1,5 +1,5 @@
+import {NProgressLink} from "@/components/NProgressLink"
 import {Routes} from "@/lib/routes"
-import Link from "next/link"
 import React from "react"
 
 interface CartSummarySideProps {
@@ -44,15 +44,14 @@ const CartSummarySide = ({
           className="w-full px-4 py-2 border rounded text-sm"
         />
 
-        <Link
-          href={{
-            pathname: Routes.shopping.checkout,
-            query: {items: selectedItems.join(",")},
-          }}
+        <NProgressLink
+          href={`${Routes.shopping.checkout}?items=${encodeURIComponent(
+            selectedItems.join(",")
+          )}`}
           className="block text-center bg-red-600 text-white font-bold py-3 rounded hover:bg-red-700 transition"
         >
           Proceed to Checkout
-        </Link>
+        </NProgressLink>
       </div>
     </aside>
   )

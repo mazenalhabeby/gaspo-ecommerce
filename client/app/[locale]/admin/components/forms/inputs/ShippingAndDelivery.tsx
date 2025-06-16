@@ -46,13 +46,13 @@ export default function ShippingAndDelivery({
     name: "packages",
   })
 
-  const unitOptions = ["in", "mm", "m"]
+  const unitOptions = ["in", "mm", "m", "cm", "ft"]
 
   const updatePackageUnit = (index: number, value: string) => {
     const pkg = packages[index]
     update(index, {
       ...pkg,
-      unit: value as "in" | "mm" | "m",
+      unit: value as "in" | "mm" | "m" | "cm" | "ft",
     })
   }
 

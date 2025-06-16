@@ -13,6 +13,7 @@ import {
   type VisibilityState,
   type SortingState,
   type ColumnFiltersState,
+  PaginationState,
 } from "@tanstack/react-table"
 
 import {
@@ -47,7 +48,11 @@ import {toast} from "sonner"
 interface DataTableProps<TData extends {slug: string}, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
+  pageCount?: number
+  pageIndex?: number // zero-based
   pageSize?: number
+  onPageChange?: (newPageIndex: number) => void
+  onPageSizeChange?: (newPageSize: number) => void
   enableColumnToggle?: boolean
   enableRowSelection?: boolean
   searchableColumns?: (keyof TData)[]
@@ -60,7 +65,11 @@ interface DataTableProps<TData extends {slug: string}, TValue> {
 export function DataTable<TData extends {slug: string}, TValue>({
   columns,
   data,
+  pageCount,
+  pageIndex = 0,
   pageSize = 10,
+  onPageChange,
+  onPageSizeChange,
   enableColumnToggle = true,
   enableRowSelection = true,
   searchableColumns = [],
@@ -69,15 +78,25 @@ export function DataTable<TData extends {slug: string}, TValue>({
   onDelete,
   isDisabled = false,
 }: DataTableProps<TData, TValue>) {
+  // internal state for uncontrolled mode:
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({})
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   )
-  const [pagination, setPagination] = React.useState({pageIndex: 0, pageSize})
+  const [pagination, setPagination] = React.useState<PaginationState>({
+    pageIndex: 0,
+    pageSize,
+  })
   const [rowSelection, setRowSelection] = React.useState({})
 
+  // are we in controlled/server mode?
+  const isControlled =
+    pageCount !== undefined && onPageChange && onPageSizeChange
+
+  // merge internal vs external pagination
+  const tablePagination = isControlled ? {pageIndex, pageSize} : pagination
   const table = useReactTable({
     data,
     columns,
@@ -86,23 +105,40 @@ export function DataTable<TData extends {slug: string}, TValue>({
       sorting,
       columnVisibility,
       columnFilters,
-      pagination,
+      pagination: tablePagination,
       rowSelection,
     },
     enableRowSelection,
+    manualPagination: !!isControlled,
+    pageCount: isControlled ? pageCount : undefined,
     onSortingChange: setSorting,
     onColumnVisibilityChange: setColumnVisibility,
     onColumnFiltersChange: setColumnFilters,
-    onPaginationChange: setPagination,
-    onRowSelectionChange: (updater) => {
-      const newSelection =
-        typeof updater === "function" ? updater(rowSelection) : updater
-      setRowSelection(newSelection)
+    onRowSelectionChange: (updater) =>
+      setRowSelection((old) =>
+        typeof updater === "function" ? updater(old) : updater
+      ),
+
+    // pagination callback:
+    onPaginationChange: (updater) => {
+      if (isControlled) {
+        const next =
+          typeof updater === "function"
+            ? updater({pageIndex, pageSize})
+            : updater
+        onPageChange(next.pageIndex)
+        onPageSizeChange(next.pageSize)
+      } else {
+        const next =
+          typeof updater === "function" ? updater(pagination) : updater
+        setPagination(next)
+      }
     },
+
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
   })
 
   const handleSearch = (value: string) => {
@@ -128,6 +164,12 @@ export function DataTable<TData extends {slug: string}, TValue>({
       toast.error(`Failed to delete items: ${(error as Error).message}`)
     }
   }
+
+  const currentPageIndex = isControlled
+    ? pageIndex
+    : table.getState().pagination.pageIndex
+
+  const totalPageCount = isControlled ? pageCount! : table.getPageCount()
 
   return (
     <div className="relative space-y-4">
@@ -216,14 +258,14 @@ export function DataTable<TData extends {slug: string}, TValue>({
 
       <div className="flex items-center justify-between text-sm text-muted-foreground">
         <div>
-          Page {pagination.pageIndex + 1} of {table.getPageCount()}
+          Page {currentPageIndex + 1} of {totalPageCount}
         </div>
         <div className="flex gap-2">
           <Button
             variant="outline"
             size="sm"
             onClick={() => table.setPageIndex(0)}
-            disabled={!table.getCanPreviousPage()}
+            disabled={currentPageIndex === 0}
           >
             <ChevronsLeftIcon className="h-4 w-4" />
           </Button>
@@ -231,7 +273,7 @@ export function DataTable<TData extends {slug: string}, TValue>({
             variant="outline"
             size="sm"
             onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
+            disabled={currentPageIndex === 0}
           >
             <ChevronLeftIcon className="h-4 w-4" />
           </Button>
@@ -239,7 +281,7 @@ export function DataTable<TData extends {slug: string}, TValue>({
             variant="outline"
             size="sm"
             onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
+            disabled={currentPageIndex + 1 === totalPageCount}
           >
             <ChevronRightIcon className="h-4 w-4" />
           </Button>
@@ -247,7 +289,7 @@ export function DataTable<TData extends {slug: string}, TValue>({
             variant="outline"
             size="sm"
             onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-            disabled={!table.getCanNextPage()}
+            disabled={currentPageIndex + 1 === totalPageCount}
           >
             <ChevronsRightIcon className="h-4 w-4" />
           </Button>

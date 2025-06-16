@@ -3,13 +3,13 @@
 import {Button} from "@/components/ui/button"
 import DetailsFormSection from "@/components/form-inputs/DetailsFormSection"
 import {ImageUploader} from "@/components/form-inputs/ImageUploader"
-import {CategoryFormValues} from "@/lib/schema/categories.schema"
 import {FieldValues, UseFormReturn} from "react-hook-form"
 import {Language} from "@/i18n/routing"
 import {useTranslations} from "next-intl"
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs"
 import {FaCheckCircle} from "react-icons/fa"
 import {MdOutlineError} from "react-icons/md"
+import {CategoryFormValues} from "@/lib/schema/categories.schema"
 
 interface CategoryFormProps {
   initialData?: Partial<CategoryFormValues>

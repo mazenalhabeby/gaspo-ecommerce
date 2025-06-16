@@ -20,10 +20,12 @@ export function S3Interceptor(
     storage: multerS3({
       s3: new S3Client({
         region: process.env.AWS_REGION!,
+        endpoint: process.env.AWS_ENDPOINT,
         credentials: {
           accessKeyId: process.env.AWS_ACCESS_KEY!,
           secretAccessKey: process.env.AWS_SECRET_KEY!,
         },
+        forcePathStyle: true,
       }),
 
       bucket: process.env.S3_BUCKET!,

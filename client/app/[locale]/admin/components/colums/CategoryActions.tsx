@@ -9,13 +9,13 @@ import {
 } from "@/components/ui/dropdown-menu"
 import {Button} from "@/components/ui/button"
 import {MoreHorizontal} from "lucide-react"
-import Link from "next/link"
 import {dashboardRoutes} from "@/lib/routes"
 import {useDeleteCategory} from "@/hooks/use-categories"
 import {CategoriesResponseType} from "@/lib/schema/categories.schema"
 import {DeleteButton} from "@/components/DeleteButton"
 import {toast} from "sonner"
 import {beautifySlug} from "@/lib/utils"
+import {NProgressLink} from "@/components/NProgressLink"
 
 type Props = {
   category: CategoriesResponseType
@@ -53,14 +53,14 @@ export function CategoryActions({category}: Props) {
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
         <DropdownMenuItem asChild>
-          <Link href={dashboardRoutes.category(category.slug)}>
+          <NProgressLink href={dashboardRoutes.category(category.slug)}>
             View Category
-          </Link>
+          </NProgressLink>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href={dashboardRoutes.categoryEdit(category.slug)}>
+          <NProgressLink href={dashboardRoutes.categoryEdit(category.slug)}>
             Edit Category
-          </Link>
+          </NProgressLink>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>

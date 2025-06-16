@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/dropdown-menu"
 import {Button} from "@/components/ui/button"
 import {MoreHorizontal} from "lucide-react"
-import Link from "next/link"
 import {dashboardRoutes} from "@/lib/routes"
 
 import {DeleteButton} from "@/components/DeleteButton"
@@ -17,6 +16,7 @@ import {toast} from "sonner"
 import {beautifySlug} from "@/lib/utils"
 import {ProductResponse} from "@/lib/schema/products.schema"
 import {useDeleteProduct} from "@/hooks/use-products"
+import {NProgressLink} from "@/components/NProgressLink"
 
 type Props = {
   product: ProductResponse
@@ -54,12 +54,14 @@ export function ProductActions({product}: Props) {
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
         <DropdownMenuItem asChild>
-          <Link href={dashboardRoutes.product(product.slug)}>View Product</Link>
+          <NProgressLink href={dashboardRoutes.product(product.slug)}>
+            View Product
+          </NProgressLink>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href={dashboardRoutes.productEdit(product.slug)}>
+          <NProgressLink href={dashboardRoutes.productEdit(product.slug)}>
             Edit Product
-          </Link>
+          </NProgressLink>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>

@@ -11,7 +11,7 @@ async function bootstrap() {
   app.use(cookieParser());
 
   app.enableCors({
-    origin: ['http://localhost:3001'],
+    origin: [process.env.CORS_ORIGIN || 'http://localhost:3000'],
     credentials: true,
   });
 
@@ -23,7 +23,7 @@ async function bootstrap() {
     }),
   );
 
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(process.env.PORT ?? 4000);
 }
 bootstrap().catch((err) => {
   console.error('Error starting the application:', err);

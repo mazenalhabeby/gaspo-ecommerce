@@ -7,27 +7,22 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import RequiredMark from "@/components/RequiredMark"
-import Link from "next/link"
 import {PlusCircleIcon} from "lucide-react"
 import {dashboardRoutes} from "@/lib/routes"
 import {beautifySlug} from "@/lib/utils"
 import Image from "next/image"
 import {Control, useController} from "react-hook-form"
+import {useCategories} from "@/hooks/use-categories"
 import {ProductFormValues} from "@/lib/schema/products.schema"
+import {NProgressLink} from "@/components/NProgressLink"
 
 interface CategorySelectorProps {
-  categories: {
-    id: string
-    slug: string
-    imageUrl?: string
-  }[]
   control: Control<ProductFormValues>
 }
 
-export default function CategorySelector({
-  categories,
-  control,
-}: CategorySelectorProps) {
+export default function CategorySelector({control}: CategorySelectorProps) {
+  const {data: categories = []} = useCategories()
+
   const {
     field: {value, onChange},
   } = useController({
@@ -35,6 +30,7 @@ export default function CategorySelector({
     control,
     defaultValue: "",
   })
+
   return (
     <div>
       <h3 className="info-card-title">Category</h3>
@@ -66,13 +62,13 @@ export default function CategorySelector({
                   </SelectItem>
                 ))
               )}
-              <Link
+              <NProgressLink
                 href={dashboardRoutes.categoryCreate}
                 className="flex flex-row items-center justify-start gap-2 w-full text-primary text-sm hover:bg-gray-100 p-2"
               >
                 <PlusCircleIcon className="h-4 w-4" />
                 <span>Create new category</span>
-              </Link>
+              </NProgressLink>
             </SelectContent>
           </Select>
         </div>

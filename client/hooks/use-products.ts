@@ -5,7 +5,11 @@ import {
   EditProduct,
   productClient,
 } from "@/lib/api/products-api"
-import {ProductCreate, ProductResponse} from "@/lib/schema/products.schema"
+import {
+  ProductCreate,
+  ProductDetailType,
+  ProductsListType,
+} from "@/lib/schema/products.schema"
 import {
   useMutation,
   useQuery,
@@ -14,13 +18,14 @@ import {
 } from "@tanstack/react-query"
 import {ZodiosError} from "@zodios/core"
 
-export const useProducts = (): UseQueryResult<
-  ProductResponse[],
-  ZodiosError
-> => {
-  return useQuery<ProductResponse[], ZodiosError>({
-    queryKey: ["products"],
-    queryFn: () => productClient.getProducts(),
+export const useProducts = (params?: {
+  page?: number
+  pageSize?: number
+}): UseQueryResult<ProductsListType, ZodiosError> => {
+  const {page = 1, pageSize = 10} = params ?? {}
+  return useQuery<ProductsListType, ZodiosError>({
+    queryKey: ["products", {page, pageSize}],
+    queryFn: () => productClient.getProducts({queries: {page, pageSize}}),
     staleTime: 1000 * 60 * 5,
     refetchOnWindowFocus: false,
     retry: 1,
@@ -28,7 +33,7 @@ export const useProducts = (): UseQueryResult<
 }
 
 export const useProduct = (slug: string) => {
-  return useQuery<ProductResponse, ZodiosError>({
+  return useQuery<ProductDetailType, ZodiosError>({
     queryKey: ["product", slug],
     queryFn: () => productClient.getProductBySlug({params: {slug}}),
     enabled: !!slug,
@@ -51,7 +56,7 @@ export const useCreateProduct = () => {
 
 export const useEditProduct = (slug: string) => {
   const queryClient = useQueryClient()
-  return useMutation<ProductResponse, ZodiosError, FormData>({
+  return useMutation<ProductDetailType, ZodiosError, FormData>({
     mutationFn: (formData) => EditProduct(slug, formData),
     onSuccess: () => {
       queryClient.invalidateQueries({queryKey: ["product", slug]})
@@ -91,11 +96,23 @@ export const useDeleteManyProducts = () => {
   })
 }
 
-export const useProductsWithDeleteManyProducts = () => {
-  const {data: products, isLoading, isError, error} = useProducts()
+export const useProductsWithDeleteManyProducts = (params?: {
+  page?: number
+  pageSize?: number
+}) => {
+  const queryClient = useQueryClient()
+  const productsQuery = useProducts(params)
 
-  const {mutateAsync: deleteMany, isPending: isDeleting} =
-    useDeleteManyProducts()
+  const {data: products, isLoading, isError, error} = useProducts(params)
+
+  const {mutateAsync: deleteMany, isPending: isDeleting} = useMutation({
+    mutationFn: deleteManyProducts,
+    onSuccess: () => {
+      queryClient.invalidateQueries({queryKey: ["products"]})
+      queryClient.invalidateQueries({queryKey: ["categories"]})
+      productsQuery.refetch()
+    },
+  })
 
   return {
     products,

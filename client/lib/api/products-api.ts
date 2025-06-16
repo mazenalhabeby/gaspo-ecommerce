@@ -1,5 +1,8 @@
 import {makeApi, Zodios} from "@zodios/core"
-import {productResponseSchema} from "../schema/products.schema"
+import {
+  productDetailSchema,
+  productsListSchema,
+} from "../schema/products.schema"
 import {z} from "zod"
 
 export const api = makeApi([
@@ -8,21 +11,40 @@ export const api = makeApi([
     path: "/products",
     alias: "getProducts",
     description: "Get all products",
-    response: z.array(productResponseSchema),
+    parameters: [
+      {
+        name: "page",
+        type: "Query",
+        schema: z.number().optional(),
+      },
+      {
+        name: "pageSize",
+        type: "Query",
+        schema: z.number().optional(),
+      },
+      {
+        name: "categoryId",
+        type: "Query",
+        schema: z.string().optional(),
+      },
+      {
+        name: "status",
+        type: "Query",
+        schema: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]).optional(),
+      },
+    ],
+    response: productsListSchema,
   },
   {
     method: "get",
     path: "/products/:slug",
     alias: "getProductBySlug",
     description: "Get product by slug",
-    response: productResponseSchema,
+    response: productDetailSchema,
   },
 ])
 
-export const productClient = new Zodios(
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api",
-  api
-)
+export const productClient = new Zodios(process.env.NEXT_PUBLIC_API_URL!, api)
 
 export async function CreateProduct(formData: FormData) {
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`, {

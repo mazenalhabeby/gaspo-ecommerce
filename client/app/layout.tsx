@@ -4,6 +4,7 @@ import "@/styles/globals.css"
 import {NextIntlClientProvider} from "next-intl"
 import ReactQueryProvider from "@/providers/ReactQueryProvider"
 import {Toaster} from "sonner"
+import {PageTransitionLoader} from "@/components/PageTransitionLoader"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,6 +32,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <PageTransitionLoader />
         <NextIntlClientProvider>
           <ReactQueryProvider>
             {children}

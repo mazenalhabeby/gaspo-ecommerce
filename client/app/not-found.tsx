@@ -1,7 +1,7 @@
 import {logo, notFoundBg} from "@/assets"
+import {NProgressLink} from "@/components/NProgressLink"
 import {useTranslations} from "next-intl"
 import Image from "next/image"
-import Link from "next/link"
 import React from "react"
 
 export default function NotFound() {
@@ -29,9 +29,9 @@ export default function NotFound() {
         <p className="text-center">{t("notFound.description")}</p>
         <p className="text-center">
           You can go back to the{" "}
-          <Link href="/" className=" text-red-500 underline">
+          <NProgressLink href="/" className=" text-red-500 underline">
             {t("notFound.home")}
-          </Link>
+          </NProgressLink>
           .
         </p>
       </div>

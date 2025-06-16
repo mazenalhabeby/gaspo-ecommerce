@@ -1,23 +1,21 @@
 "use client"
 
-import {useState, useMemo} from "react"
+import {useState, useMemo, useEffect} from "react"
 import {useCartStore} from "@/store/cartStore"
 import {toast} from "sonner"
 import {useRouter} from "next/navigation"
 import {useLocale} from "next-intl"
-
 import BreadcrumbBar from "./BreadcrumbBar"
 import RatingStars from "@/components/RatingStars"
 import ProductReviewsSection from "./ProductReviewsSection"
 import ProductDestailsSection from "./ProductDestailsSection"
 import ProductInfoSection from "./ProductInfoSection"
-
-import {ProductResponse} from "@/lib/schema/products.schema"
 import {Separator} from "@/components/ui/separator"
 import {Routes} from "@/lib/routes"
+import {ProductDetailType} from "@/lib/schema/products.schema"
 
 type Props = {
-  product: ProductResponse
+  product: ProductDetailType
 }
 
 export default function ProductDetailClient({product}: Props) {
@@ -43,7 +41,9 @@ export default function ProductDetailClient({product}: Props) {
   const allAttributeFields = useMemo(() => {
     const set = new Set<string>()
     product.variants?.forEach((v) =>
-      v.attributes?.forEach((attr) => set.add(attr.name))
+      v.attributes?.forEach(
+        (attr) => set.add(attr.value.name) // ✅ use parsed name, not attr.name
+      )
     )
     return Array.from(set)
   }, [product.variants])
@@ -51,7 +51,7 @@ export default function ProductDetailClient({product}: Props) {
   const selectedVariant = useMemo(() => {
     return product.variants?.find((variant) =>
       variant.attributes?.every(
-        (attr) => selectedAttributes[attr.name] === attr.value
+        (attr) => selectedAttributes[attr.value.name] === attr.value.value
       )
     )
   }, [selectedAttributes, product.variants])
@@ -89,6 +89,20 @@ export default function ProductDetailClient({product}: Props) {
       },
     })
   }
+
+  useEffect(() => {
+    if (!product.variants?.length) return
+
+    const initialAttributes: Record<string, string> = {}
+
+    product.variants[0]?.attributes?.forEach((attr) => {
+      if (typeof attr.value === "object") {
+        initialAttributes[attr.value.name] = attr.value.value
+      }
+    })
+
+    setSelectedAttributes(initialAttributes)
+  }, [product.variants])
 
   return (
     <main className="container mx-auto flex flex-col gap-6 px-4 py-8 md:px-8 lg:px-16">

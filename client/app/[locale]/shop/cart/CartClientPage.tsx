@@ -2,13 +2,13 @@
 
 import {useCartStore} from "@/store/cartStore"
 import React, {useState, useMemo} from "react"
-import Link from "next/link"
 import {FiShoppingCart} from "react-icons/fi"
 import {useDelayedLoading} from "@/hooks/useDelayedLoading"
 import {shoppingRoutes} from "@/lib/routes"
 import CartPageSkeleton from "../components/loading/CartPageSkeleton"
 import CartItemsSection from "../components/cart/CartItemsSection"
 import CartSummarySide from "../components/cart/CartSummarySide"
+import {NProgressLink} from "@/components/NProgressLink"
 export default function CartClientPage() {
   const {items, removeFromCart, setQuantity} = useCartStore()
   const [selectedItems, setSelectedItems] = useState<string[]>(
@@ -38,12 +38,12 @@ export default function CartClientPage() {
         <div className="col-span-full flex flex-col items-center justify-center gap-4 text-center">
           <FiShoppingCart className="text-gray-400 w-16 h-16" />
           <p className="text-gray-500 text-sm">No items in your cart yet.</p>
-          <Link
+          <NProgressLink
             href={shoppingRoutes.shop}
             className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
           >
             Browse Products
-          </Link>
+          </NProgressLink>
         </div>
       ) : (
         <React.Fragment>

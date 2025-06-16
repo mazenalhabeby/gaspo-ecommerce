@@ -1,7 +1,7 @@
 import {makeApi, Zodios} from "@zodios/core"
 import {
   categoriesResponseSchema,
-  categoryResponseSchema,
+  categoryResponseSchemaWithProducts,
 } from "../schema/categories.schema"
 import {z} from "zod"
 
@@ -18,14 +18,11 @@ export const api = makeApi([
     path: "/categories/:slug",
     alias: "getCategoryBySlug",
     description: "Get category by slug",
-    response: categoryResponseSchema,
+    response: categoryResponseSchemaWithProducts,
   },
 ])
 
-export const categoryClient = new Zodios(
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api",
-  api
-)
+export const categoryClient = new Zodios(process.env.NEXT_PUBLIC_API_URL!, api)
 
 export async function CreateCategory(formData: FormData) {
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories`, {

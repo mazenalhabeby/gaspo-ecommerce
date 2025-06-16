@@ -4,14 +4,15 @@ import React, {useEffect} from "react"
 import {useRouter} from "next/navigation"
 import {useForm} from "react-hook-form"
 import {zodResolver} from "@hookform/resolvers/zod"
-import {productCreateSchema, ProductCreate} from "@/lib/schema/products.schema"
+import {
+  productFormSchema,
+  ProductFormValues,
+} from "@/lib/schema/products.schema"
 import {useAppToast} from "@/hooks/use-app-toast"
 import {useSupportedLanguages} from "@/hooks/use-supported-languages"
 import {initTranslationFieldsProducts} from "@/lib/utils"
 import {useProductEditor} from "@/hooks/use-products"
 import ProductForm from "../../../components/forms/ProductForm"
-
-// Replace with actual initial data if needed
 
 export default function ProductClientUpdatePage({slug}: {slug: string}) {
   const router = useRouter()
@@ -20,12 +21,12 @@ export default function ProductClientUpdatePage({slug}: {slug: string}) {
 
   const {product, isLoading, updateProduct, isUpdating} = useProductEditor(slug)
 
-  const form = useForm<ProductCreate>({
-    resolver: zodResolver(productCreateSchema),
+  const form = useForm<ProductFormValues>({
+    resolver: zodResolver(productFormSchema),
     mode: "onChange",
     defaultValues: {
       currency: product?.currency ?? "",
-      categoryId: product?.categoryId ?? "",
+      categoryId: product?.categories.id ?? "",
       price: 0,
       stock: 0,
       weight: 0,
@@ -51,7 +52,7 @@ export default function ProductClientUpdatePage({slug}: {slug: string}) {
     if (!product) return
 
     form.reset({
-      categoryId: product.categoryId ?? "",
+      categoryId: product.categories.id ?? "",
       currency: product.currency,
       price: product.price,
       stock: product.stock,
@@ -80,7 +81,10 @@ export default function ProductClientUpdatePage({slug}: {slug: string}) {
           seoDesc: t?.seoDesc || "",
         }
       }),
-      variants: product.variants ?? [],
+      variants: (product.variants ?? []).map((variant) => ({
+        ...variant,
+        sku: variant.sku ?? undefined,
+      })),
     })
   }, [product, form, languages])
 
@@ -101,18 +105,12 @@ export default function ProductClientUpdatePage({slug}: {slug: string}) {
   if (!product) return <p className="p-4 text-red-500">Product not found</p>
 
   return (
-    <main className="max-w-screen-xl mx-auto px-4 py-10 space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Edit: {product.name}</h1>
-        <p className="text-muted-foreground">{product.description}</p>
-      </div>
-      <ProductForm
-        mode="edit"
-        form={form}
-        languages={languages}
-        onSubmitHandler={handleUpdate}
-        isDisabled={isUpdating}
-      />
-    </main>
+    <ProductForm
+      mode="edit"
+      form={form}
+      languages={languages}
+      onSubmitHandler={handleUpdate}
+      isDisabled={isUpdating}
+    />
   )
 }

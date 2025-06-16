@@ -26,7 +26,7 @@ export default function CategoryClientPage({slug}: {slug: string}) {
   if (error) {
     return (
       <NotFoundView
-        title={`Category not found for "${slug}"`}
+        title={`Category not found for "${beautifySlug(slug)}"`}
         message="Try checking the category name or go back to the categories list."
         icon={
           <Image

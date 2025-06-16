@@ -4,7 +4,6 @@ import React from "react"
 import {NavbarLink, NavbarLinks} from "../data"
 import {useTranslations} from "next-intl"
 import {Button} from "@/components/ui/button"
-import Link from "next/link"
 import {
   Sheet,
   SheetContent,
@@ -15,6 +14,7 @@ import {
 } from "@/components/ui/sheet"
 import {IoMdMenu} from "react-icons/io"
 import {Link as ScrollLink} from "react-scroll"
+import {NProgressLink} from "../NProgressLink"
 
 const Navlinks = () => {
   const t = useTranslations()
@@ -23,13 +23,13 @@ const Navlinks = () => {
     <div className="hidden lg:flex flex-1 flex-row items-center justify-around max-w-7xl">
       {NavbarLinks.map((link: NavbarLink, i: number) =>
         link.href.startsWith("/") ? (
-          <Link
+          <NProgressLink
             key={i}
             href={link.href}
             className="hidden lg:inline-block sculpted-text sculpted-text-focus uppercase cursor-pointer"
           >
             {t(link.name)}
-          </Link>
+          </NProgressLink>
         ) : (
           <ScrollLink
             to={link.href}
@@ -74,13 +74,13 @@ const NavLinksMobile = () => {
           <div className="flex flex-col items-center justify-around h-full uppercase font-semibold tracking-wider">
             {NavbarLinks.map((link: NavbarLink, i: number) =>
               link.href.startsWith("/") ? (
-                <Link
+                <NProgressLink
                   key={i}
                   href={link.href}
                   className="text-xl w-full text-center py-4 cursor-pointer sculpted-text sculpted-text-focus"
                 >
                   {t(link.name)}
-                </Link>
+                </NProgressLink>
               ) : (
                 <ScrollLink
                   key={i}

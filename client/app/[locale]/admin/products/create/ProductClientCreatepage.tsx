@@ -8,7 +8,7 @@ import {useSupportedLanguages} from "@/hooks/use-supported-languages"
 import {useForm} from "react-hook-form"
 import {zodResolver} from "@hookform/resolvers/zod"
 import {initTranslationFieldsProducts} from "@/lib/utils"
-import {productCreateSchema} from "@/lib/schema/products.schema"
+import {ProductCreate, productCreateSchema} from "@/lib/schema/products.schema"
 import {useCreateProduct} from "@/hooks/use-products"
 
 export default function ProductClientCreatePage() {
@@ -17,7 +17,7 @@ export default function ProductClientCreatePage() {
   const languages = useSupportedLanguages()
   const {mutateAsync: createProduct, isPending} = useCreateProduct()
 
-  const form = useForm({
+  const form = useForm<ProductCreate>({
     resolver: zodResolver(productCreateSchema),
     mode: "onChange",
     defaultValues: {
@@ -37,8 +37,8 @@ export default function ProductClientCreatePage() {
           unit: "in",
         },
       ],
-      categoryId: "", // must match `.optional().nullable()`
-      sku: null, // match .optional().nullable()
+      categoryId: "",
+      sku: null,
       seoTitle: null,
       seoDesc: null,
       images: [],

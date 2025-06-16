@@ -3,12 +3,12 @@
 
 import {ColumnDef} from "@tanstack/react-table"
 import {Checkbox} from "@/components/ui/checkbox"
-import Link from "next/link"
 import {dashboardRoutes} from "@/lib/routes"
-import {ProductResponse} from "@/lib/schema/products.schema"
 import {ProductActions} from "./ProductActions"
+import {ProductSummaryType} from "@/lib/schema/products.schema"
+import {NProgressLink} from "@/components/NProgressLink"
 
-export const ProductColumns: ColumnDef<ProductResponse>[] = [
+export const ProductColumns: ColumnDef<ProductSummaryType>[] = [
   {
     id: "select",
     header: ({table}) => (
@@ -37,19 +37,19 @@ export const ProductColumns: ColumnDef<ProductResponse>[] = [
     cell: ({row}) => {
       const product = row.original
       return (
-        <Link
+        <NProgressLink
           href={dashboardRoutes.product(product.slug)}
           className="flex items-center gap-3"
         >
           <img
-            src={product.images[0]?.url || "/placeholder.png"}
+            src={product.images?.[0]?.url || "/placeholder.png"}
             alt={product.name}
             className="w-10 h-10 rounded-md object-cover border"
           />
           <span className="font-medium w-32 md:w-auto truncate">
             {product.name}
           </span>
-        </Link>
+        </NProgressLink>
       )
     },
   },

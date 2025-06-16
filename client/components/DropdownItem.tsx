@@ -1,5 +1,5 @@
 import Image from "next/image"
-import Link from "next/link"
+import {NProgressLink} from "./NProgressLink"
 
 type DropdownItemProps = {
   id: string
@@ -51,5 +51,9 @@ export default function DropdownItem({
     </div>
   )
 
-  return linkTo ? <Link href={linkTo}>{content}</Link> : content
+  return linkTo ? (
+    <NProgressLink href={linkTo}>{content}</NProgressLink>
+  ) : (
+    content
+  )
 }

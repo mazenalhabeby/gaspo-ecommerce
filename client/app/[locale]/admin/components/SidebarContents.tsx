@@ -1,3 +1,4 @@
+import {NProgressLink} from "@/components/NProgressLink"
 import {
   Sidebar,
   SidebarHeader,
@@ -9,7 +10,6 @@ import {
 } from "@/components/ui/sidebar"
 import {cn} from "@/lib/utils"
 import {ArrowUpCircleIcon} from "lucide-react"
-import Link from "next/link"
 import React from "react"
 
 type SidebarGroupType = {
@@ -43,14 +43,14 @@ export const SidebarContents = ({
               asChild
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
-              <Link href={logoHref || "/"}>
+              <NProgressLink href={logoHref || "/"}>
                 {logo || (
                   <React.Fragment>
                     <ArrowUpCircleIcon className="h-5 w-5" />
                     <span className="text-base font-semibold">Logo</span>
                   </React.Fragment>
                 )}
-              </Link>
+              </NProgressLink>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

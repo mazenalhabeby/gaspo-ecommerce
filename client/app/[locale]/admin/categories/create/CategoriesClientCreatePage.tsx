@@ -2,16 +2,16 @@
 import React from "react"
 import CategoryForm from "../../components/forms/CategoryForm"
 import {useForm} from "react-hook-form"
-import {
-  createCategorySchemaWithImage,
-  CreateCategoryWithImageType,
-} from "@/lib/schema/categories.schema"
 import {zodResolver} from "@hookform/resolvers/zod"
 import {useAppToast} from "@/hooks/use-app-toast"
 import {useRouter} from "next/navigation"
 import {useCreateCategory} from "@/hooks/use-categories"
 import {useSupportedLanguages} from "@/hooks/use-supported-languages"
 import {initTranslationFields} from "@/lib/utils"
+import {
+  createCategorySchemaWithImage,
+  CreateCategoryWithImageType,
+} from "@/lib/schema/categories.schema"
 
 export default function CategoriesClientCreatePage() {
   const notify = useAppToast()
@@ -25,7 +25,7 @@ export default function CategoriesClientCreatePage() {
     resolver: zodResolver(createCategorySchemaWithImage),
     mode: "onChange",
     defaultValues: {
-      image: undefined,
+      imageUrl: undefined,
       translations: initTranslationFields(languages),
     },
   })

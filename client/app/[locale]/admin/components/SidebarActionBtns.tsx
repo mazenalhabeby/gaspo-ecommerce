@@ -7,10 +7,10 @@ import {
   SidebarMenu,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import Link from "next/link"
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover"
 import {PopoverClose} from "@radix-ui/react-popover"
 import {QuickCreateItems} from "../data"
+import {NProgressLink} from "@/components/NProgressLink"
 
 export const SidebarActionBtns = () => {
   return (
@@ -26,13 +26,13 @@ export const SidebarActionBtns = () => {
               <PopoverContent>
                 {QuickCreateItems.map((item) => (
                   <PopoverClose asChild key={item.title}>
-                    <Link
+                    <NProgressLink
                       href={item.url}
                       className="flex items-center gap-2 px-4 py-2 rounded-md hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground"
                     >
                       {item.icon && <item.icon className="h-4 w-4" />}
                       <span>{item.title}</span>
-                    </Link>
+                    </NProgressLink>
                   </PopoverClose>
                 ))}
               </PopoverContent>

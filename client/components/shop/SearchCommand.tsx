@@ -11,10 +11,10 @@ import {
 } from "@/components/ui/command"
 import {Search} from "lucide-react"
 import {useRecentSearchStore} from "@/store/recentSearchStore"
-import Link from "next/link"
 import Image from "next/image"
 import {shoppingRoutes} from "@/lib/routes"
 import {useProducts} from "@/hooks/use-products"
+import {NProgressLink} from "../NProgressLink"
 
 export default function SearchCommand() {
   const [open, setOpen] = useState(false)
@@ -58,7 +58,7 @@ export default function SearchCommand() {
   // Replace 'any' with your actual Product type if available, e.g. 'Product'
   const renderProductItem = (product: NonNullable<typeof products>[number]) => (
     <CommandItem key={product.id} onSelect={() => handleSelect(product.id)}>
-      <Link
+      <NProgressLink
         href={shoppingRoutes.product(product.slug)}
         className="flex items-center gap-3 w-full"
       >
@@ -75,7 +75,7 @@ export default function SearchCommand() {
         <span className="text-sm font-semibold text-primary">
           ${product.price.toFixed(2)}
         </span>
-      </Link>
+      </NProgressLink>
     </CommandItem>
   )
 

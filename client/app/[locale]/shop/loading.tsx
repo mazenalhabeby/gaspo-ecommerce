@@ -1,5 +1,6 @@
 import React from "react"
+import ProductCardSkeleton from "./components/loading/ProductCardSkeleton"
 
 export default function Loading() {
-  return <div>loading</div>
+  return <ProductCardSkeleton />
 }

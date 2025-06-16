@@ -9,12 +9,14 @@ import {
   Patch,
   Delete,
   BadRequestException,
+  Query,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { DeleteProductsDto } from './dto/delete-products.dto';
 import { S3Interceptor } from 'src/common/interceptors/s3.interceptor';
+import { PaginationQueryDto } from './dto/pagination-query.dto';
 
 @Controller('products')
 export class ProductsController {
@@ -43,8 +45,8 @@ export class ProductsController {
   }
 
   @Get()
-  findAll() {
-    return this.productsService.findAll();
+  findAll(@Query() query: PaginationQueryDto) {
+    return this.productsService.findAll(query);
   }
 
   @Get(':slug')
@@ -77,6 +79,6 @@ export class ProductsController {
 
   @Delete()
   removeMany(@Body() dto: DeleteProductsDto) {
-    return this.productsService.removeMany(dto.slugs);
+    return this.productsService.removeMany(dto);
   }
 }

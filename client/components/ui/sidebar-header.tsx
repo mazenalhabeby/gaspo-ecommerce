@@ -6,6 +6,7 @@ import {SidebarTrigger} from "@/components/ui/sidebar"
 import {Separator} from "@/components/ui/separator"
 import {cn} from "@/lib/utils"
 import LanguageSwitcher from "../LanguageSwitcher"
+
 interface SiteHeaderProps {
   className?: string
 }
@@ -30,7 +31,7 @@ function SidebarHeader({className}: SiteHeaderProps) {
           {title}
         </h1>
       </div>
-      <div className="px-0 lg:px-4">
+      <div className="px-0 lg:px-4 flex items-center justify-end gap-2 ml-auto">
         <LanguageSwitcher />
       </div>
     </header>

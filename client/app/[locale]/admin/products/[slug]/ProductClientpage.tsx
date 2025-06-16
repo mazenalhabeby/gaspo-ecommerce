@@ -2,7 +2,6 @@
 
 import {Button} from "@/components/ui/button"
 import {TagIcon, PencilIcon, ChartColumnStacked} from "lucide-react"
-import Link from "next/link"
 import React, {useState} from "react"
 import {dashboardRoutes, Routes} from "@/lib/routes"
 import ProductImageGallery from "@/components/ProductImageGallery"
@@ -15,10 +14,10 @@ import {useSupportedLanguages} from "@/hooks/use-supported-languages"
 import {TabsContent} from "@/components/ui/tabs"
 import {TranslationTabs} from "@/components/TranslationTabs"
 import {beautifySlug} from "@/lib/utils"
+import {NProgressLink} from "@/components/NProgressLink"
 
 export default function ProductClientPage({slug}: {slug: string}) {
   const {data: product, isLoading, error} = useProduct(slug)
-  console.log(product)
   const [mainImage, setMainImage] = useState(product?.images?.[0]?.url)
 
   const languages = useSupportedLanguages()
@@ -61,10 +60,10 @@ export default function ProductClientPage({slug}: {slug: string}) {
               className=" bg-primary text-primary-foreground"
               asChild
             >
-              <Link href={dashboardRoutes.productEdit(slug)}>
+              <NProgressLink href={dashboardRoutes.productEdit(slug)}>
                 <PencilIcon className="w-4 h-4" />
                 Edit
-              </Link>
+              </NProgressLink>
             </Button>
           </div>
 
@@ -186,7 +185,7 @@ export default function ProductClientPage({slug}: {slug: string}) {
                 <section className="space-y-4 border p-4 rounded-md bg-white">
                   <h2 className="text-lg font-semibold mb-2">Variants</h2>
 
-                  <div className="grid gap-3">
+                  {/* <div className="grid gap-3">
                     {product.variants.map((variant) => (
                       <div
                         key={variant.id}
@@ -206,12 +205,49 @@ export default function ProductClientPage({slug}: {slug: string}) {
                               key={attr.id}
                               className="bg-background px-2 py-1 rounded border"
                             >
-                              {attr.name}: {attr.value}
+                              {attr.name}:{" "}
+                              {typeof attr.value === "object"
+                                ? JSON.stringify(attr.value)
+                                : attr.value?.toString()}
                             </span>
                           ))}
                         </div>
                       </div>
                     ))}
+                  </div> */}
+                  <div className="grid gap-3">
+                    {product.variants.map((variant) => {
+                      return (
+                        <div
+                          key={variant.id}
+                          className="p-4 bg-muted rounded-md border text-sm text-muted-foreground"
+                        >
+                          <p className="font-medium text-foreground mb-1">
+                            {variant.name}
+                          </p>
+                          <p className="text-xs mb-2">
+                            SKU: {variant.sku ?? "-"} | Price: $
+                            {variant.price.toFixed(2)} | Stock: {variant.stock}
+                          </p>
+                          <div className="flex flex-wrap gap-2 text-xs">
+                            {variant.attributes?.map((attr) => (
+                              <span
+                                key={attr.id}
+                                className="bg-background px-2 py-1 rounded border"
+                              >
+                                {typeof attr.value === "object" && (
+                                  <>
+                                    {`${JSON.stringify(
+                                      attr.value.name
+                                    )} :  ${JSON.stringify(attr.value.value)}`}
+                                  </>
+                                )}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )
+                    })}
                   </div>
                 </section>
               )}

@@ -4,7 +4,7 @@ import {LinkButton} from "@/components/ui/link-button"
 import {NoResultsTable} from "@/components/NoResultsTable"
 import {Routes} from "@/lib/routes"
 import {PlusCircleIcon} from "lucide-react"
-import React, {useEffect} from "react"
+import React, {useEffect, useState} from "react"
 import {IoMdBarcode} from "react-icons/io"
 import {ProductColumns} from "../components/colums/ProductColums"
 import {useProductsWithDeleteManyProducts} from "@/hooks/use-products"
@@ -12,6 +12,8 @@ import TablesPageSkeleton from "../components/loading/TablesPageSkeleton"
 import {toast} from "sonner"
 
 export default function ProductsClientPage() {
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(20)
   const {products, isLoading, error, deleteMany, isDeleting} =
     useProductsWithDeleteManyProducts()
 
@@ -35,9 +37,17 @@ export default function ProductsClientPage() {
             <div className="flex flex-col gap-4 p-4">
               <DataTable
                 columns={ProductColumns}
-                data={products ?? []}
-                searchableColumns={["name"]}
+                data={products?.items ?? []}
+                searchableColumns={["slug"]}
                 enableRowSelection
+                pageCount={products?.meta.totalPages}
+                pageIndex={page - 1}
+                pageSize={pageSize}
+                onPageChange={(newIndex) => setPage(newIndex + 1)}
+                onPageSizeChange={(newSize) => {
+                  setPageSize(newSize)
+                  setPage(1) // reset on pageSize change
+                }}
                 otherComponents={
                   <LinkButton
                     href={Routes.dashboard.productCreate}

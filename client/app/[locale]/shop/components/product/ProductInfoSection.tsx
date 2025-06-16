@@ -3,10 +3,10 @@
 import {useState} from "react"
 import ProductImageGallery from "./ProductImageGallery"
 import ProductInfo from "./ProductDetailsInfo"
-import {ProductResponse} from "@/lib/schema/products.schema"
+import {ProductDetailType} from "@/lib/schema/products.schema"
 
 interface Props {
-  product: ProductResponse
+  product: ProductDetailType
   attributeFields: string[]
   selectedAttributes: Record<string, string>
   setSelectedAttributes: (
@@ -17,7 +17,7 @@ interface Props {
   quantity: number
   setQuantity: (qty: number) => void
   handleAddToCart: () => void
-  selectedVariant?: NonNullable<ProductResponse["variants"]>[number]
+  selectedVariant?: NonNullable<ProductDetailType["variants"]>[number]
 }
 
 export default function ProductInfoSection({
@@ -38,7 +38,7 @@ export default function ProductInfoSection({
         <ProductImageGallery
           mainImage={mainImage || product.images?.[0]?.url}
           setMainImage={setMainImage}
-          gallery={product.images?.map((img) => img.url)}
+          gallery={product.images?.map((img: {url: string}) => img.url)}
           productName={product.name}
         />
       </div>

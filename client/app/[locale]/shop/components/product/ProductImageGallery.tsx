@@ -38,7 +38,7 @@ export default function ProductImageGallery({
           alt={productName}
           width={800}
           height={800}
-          className="w-full h-auto object-cover rounded-lg"
+          className="object-contain rounded-lg max-w-4xl max-h-[556px] w-full h-auto"
           priority
         />
       </div>

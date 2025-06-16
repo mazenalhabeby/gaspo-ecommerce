@@ -1,12 +1,13 @@
 "use client"
 import {ColumnDef} from "@tanstack/react-table"
 import {Checkbox} from "@/components/ui/checkbox"
-import Link from "next/link"
+
 import {dashboardRoutes} from "@/lib/routes"
 import {CategoriesResponseType} from "@/lib/schema/categories.schema"
 import Image from "next/image"
 import {CategoryActions} from "./CategoryActions"
 import {beautifySlug} from "@/lib/utils"
+import {NProgressLink} from "@/components/NProgressLink"
 
 export const CategoryColumns: ColumnDef<CategoriesResponseType>[] = [
   {
@@ -38,7 +39,7 @@ export const CategoryColumns: ColumnDef<CategoriesResponseType>[] = [
       const category = row.original
 
       return (
-        <Link
+        <NProgressLink
           href={dashboardRoutes.category(category.slug)}
           className="flex items-center gap-3"
         >
@@ -52,7 +53,7 @@ export const CategoryColumns: ColumnDef<CategoriesResponseType>[] = [
           <span className="font-medium w-32 md:w-auto truncate">
             {beautifySlug(category.slug)}
           </span>
-        </Link>
+        </NProgressLink>
       )
     },
   },
