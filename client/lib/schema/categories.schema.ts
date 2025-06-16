@@ -240,7 +240,7 @@ export type CategoryResponseWithProductsType = z.infer<
  * @see categoryResponseSchema
  */
 export const categoriesResponseSchema = categoryResponseSchema
-export type CategoriesResponse = z.infer<typeof categoriesResponseSchema>
+export type CategoriesResponseType = z.infer<typeof categoriesResponseSchema>
 
 /**
  * Represents the form values for a category, combining both creation and update types.

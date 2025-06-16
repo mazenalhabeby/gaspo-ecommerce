@@ -48,7 +48,7 @@ export default function CategoryClientEditPage({slug}: {slug: string}) {
       })
 
       reset({
-        image: category.imageUrl,
+        image: category.imageUrl ?? undefined,
         translations: filledTranslations,
       })
     }

@@ -3,11 +3,14 @@
 import {FaHeart, FaRegHeart} from "react-icons/fa"
 import {useFavoritesStore} from "@/store/favoritesStore"
 import {cn} from "@/lib/utils"
-import {ProductResponse} from "@/lib/schema/products.schema"
+import {
+  ProductDetailType,
+  ProductSummaryType,
+} from "@/lib/schema/products.schema"
 
 type FavoriteButtonProps = {
   productId: string
-  product: ProductResponse
+  product: ProductSummaryType | ProductDetailType
   className?: string
 }
 

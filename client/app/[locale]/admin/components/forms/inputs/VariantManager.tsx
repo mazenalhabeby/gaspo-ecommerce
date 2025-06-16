@@ -65,7 +65,6 @@ export default function VariantManager({
     }))
 
     append({
-      id: crypto.randomUUID(),
       name: "",
       slug: "",
       sku: "",
@@ -87,28 +86,32 @@ export default function VariantManager({
               setValue("variantFields", updatedFields)
 
               const existingVariants = getValues("variants") || []
-              const updatedVariants = existingVariants.map(
-                (variant: VariantField) => {
-                  const attrs: VariantAttribute[] = variant.attributes || []
+              const updatedVariants = existingVariants.map((variant) => {
+                const attrs: VariantAttribute[] = (variant.attributes || [])
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  .map((attr: any) => ({
+                    id: attr.id ? attr.id : crypto.randomUUID(),
+                    name: attr.name,
+                    value: attr.value,
+                  }))
 
-                  if (
-                    !attrs.find(
-                      (attr: VariantAttribute) => attr.name === newField
-                    )
-                  ) {
-                    attrs.push({
-                      id: crypto.randomUUID(),
-                      name: newField,
-                      value: "",
-                    })
-                  }
-
-                  return {
-                    ...variant,
-                    attributes: attrs,
-                  }
+                if (
+                  !attrs.find(
+                    (attr: VariantAttribute) => attr.name === newField
+                  )
+                ) {
+                  attrs.push({
+                    id: crypto.randomUUID(),
+                    name: newField,
+                    value: "",
+                  })
                 }
-              )
+
+                return {
+                  ...variant,
+                  attributes: attrs,
+                }
+              })
 
               setValue("variants", updatedVariants)
             }}
@@ -142,7 +145,7 @@ export default function VariantManager({
 
               {/* Attribute Inputs */}
               {typedField.attributes?.map((attr, attrIndex) => (
-                <div key={attr.id} className="space-y-1">
+                <div key={attrIndex} className="space-y-1">
                   <Label>{attr.name}</Label>
                   <Controller
                     control={control}

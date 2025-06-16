@@ -80,7 +80,7 @@ export const variantAttributeSchema = z.object({
   }),
 })
 
-export type VariantAttribute = z.infer<typeof variantAttributeSchema>
+export type VariantAttributeType = z.infer<typeof variantAttributeSchema>
 
 // translations for a given variant
 export const productVariantTranslationSchema = z.object({
@@ -183,17 +183,6 @@ export const productSummarySchema = z.object({
 })
 export type ProductSummaryType = z.infer<typeof productSummarySchema>
 
-export const productsListSchema = z.object({
-  items: z.array(productSummarySchema),
-  meta: z.object({
-    total: z.number(),
-    page: z.number(),
-    pageSize: z.number(),
-    totalPages: z.number(),
-  }),
-})
-export type ProductsListType = z.infer<typeof productsListSchema>
-
 //
 // ─── 7) PRODUCT DETAIL (findOne) ───────────────────────────────────────────────
 //
@@ -235,6 +224,16 @@ export const productDetailSchema = z.object({
 })
 export type ProductDetailType = z.infer<typeof productDetailSchema>
 
+export const productsListSchema = z.object({
+  items: z.array(productSummarySchema),
+  meta: z.object({
+    total: z.number(),
+    page: z.number(),
+    pageSize: z.number(),
+    totalPages: z.number(),
+  }),
+})
+export type ProductsListType = z.infer<typeof productsListSchema>
 //
 // ─── 8) CREATE / UPDATE DTOs ────────────────────────────────────────────────────
 //

@@ -5,10 +5,10 @@ import {Star} from "lucide-react"
 
 import {motion, AnimatePresence} from "framer-motion"
 import RatingStars from "@/components/RatingStars"
-import {ProductResponse} from "@/lib/schema/products.schema"
+import {ProductDetailType} from "@/lib/schema/products.schema"
 
 type Props = {
-  reviews: ProductResponse["reviews"]
+  reviews: ProductDetailType["reviews"]
   rating: number
 }
 

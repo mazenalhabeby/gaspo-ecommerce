@@ -24,7 +24,7 @@ export default function FavoriteItemsPanel() {
         id: fav.id,
         name: fav.name,
         slug: fav.slug,
-        image: fav.images[0]?.url ?? "", // Provide a fallback or handle missing image
+        image: fav.images?.[0]?.url ?? "", // Provide a fallback or handle missing image
         price: fav.price,
         // Add quantity if available, or omit if not needed
       }))}

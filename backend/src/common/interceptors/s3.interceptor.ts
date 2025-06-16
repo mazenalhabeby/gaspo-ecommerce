@@ -11,6 +11,10 @@ type Options = {
   fallbackNameField?: string; // optional body field to fallback as file name (e.g., 'name')
 };
 
+interface UploadRequest extends Request {
+  __uploadUuid?: string;
+}
+
 export function S3Interceptor(
   baseFolder: string,
   fields: FieldConfig[],
@@ -30,6 +34,8 @@ export function S3Interceptor(
 
       bucket: process.env.S3_BUCKET!,
       key: (req: Request, file, cb) => {
+        const uploadReq = req as UploadRequest;
+
         const body = req.body as Record<string, any> | undefined;
 
         // 1. Try to get a slug or fallback name from body
@@ -46,12 +52,18 @@ export function S3Interceptor(
           .replace(/[^a-z0-9-]/gi, '');
 
         const ext = path.extname(file.originalname);
-        const uuid = randomUUID();
+
+        if (!uploadReq.__uploadUuid) {
+          uploadReq.__uploadUuid = randomUUID();
+        }
+
+        const folderName = `${safeName}-${uploadReq.__uploadUuid}`;
+        const imageUuid = randomUUID();
 
         // 2. Determine final path (flat or nested)
         const fullPath = options?.useSlugFolder
-          ? `${baseFolder}/temp-${safeName}/image-${uuid}${ext}`
-          : `${baseFolder}/${safeName}-${uuid}${ext}`;
+          ? `${baseFolder}/${folderName}/image-${imageUuid}${ext}`
+          : `${baseFolder}/${folderName}${ext}`;
 
         cb(null, fullPath);
       },

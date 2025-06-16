@@ -15,6 +15,7 @@ import Image from "next/image"
 import {shoppingRoutes} from "@/lib/routes"
 import {useProducts} from "@/hooks/use-products"
 import {NProgressLink} from "../NProgressLink"
+import {ProductSummaryType} from "@/lib/schema/products.schema"
 
 export default function SearchCommand() {
   const [open, setOpen] = useState(false)
@@ -27,14 +28,20 @@ export default function SearchCommand() {
 
   const searchResults = useMemo(() => {
     return query
-      ? products?.filter((p) => p.name.toLowerCase().includes(query)) ?? []
+      ? products?.items.filter((p) => p.name.toLowerCase().includes(query)) ??
+          []
       : []
   }, [query, products])
 
   const recentProducts = useMemo(() => {
+    // recent: string[] (ids), products: { items: ProductSummaryType[] }
     return recent
-      .map((id) => products?.find((p) => p.id === id))
-      .filter(Boolean) as typeof products
+      .map((id: string) =>
+        (products?.items as ProductSummaryType[] | undefined)?.find(
+          (p) => p.id === id
+        )
+      )
+      .filter(Boolean) as ProductSummaryType[]
   }, [recent, products])
 
   useEffect(() => {
@@ -55,15 +62,15 @@ export default function SearchCommand() {
     setOpen(false)
   }
 
-  // Replace 'any' with your actual Product type if available, e.g. 'Product'
-  const renderProductItem = (product: NonNullable<typeof products>[number]) => (
+  // Use ProductSummaryType as the type for each product
+  const renderProductItem = (product: ProductSummaryType) => (
     <CommandItem key={product.id} onSelect={() => handleSelect(product.id)}>
       <NProgressLink
         href={shoppingRoutes.product(product.slug)}
         className="flex items-center gap-3 w-full"
       >
         <Image
-          src={product.images[0]?.url}
+          src={product.images?.[0]?.url || ""}
           alt={product.name}
           width={48}
           height={48}

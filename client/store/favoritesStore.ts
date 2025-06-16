@@ -1,11 +1,14 @@
 // lib/store/favoritesStore.ts
+import {
+  ProductDetailType,
+  ProductSummaryType,
+} from "@/lib/schema/products.schema"
 import {create} from "zustand"
 import {persist} from "zustand/middleware"
-import {ProductResponse} from "@/lib/schema/products.schema"
 
 interface FavoritesStore {
-  favorites: ProductResponse[]
-  toggleFavorite: (product: ProductResponse) => void
+  favorites: (ProductSummaryType | ProductDetailType)[]
+  toggleFavorite: (product: ProductSummaryType | ProductDetailType) => void
   isFavorite: (id: string) => boolean
   removeFavorite: (id: string) => void
 }

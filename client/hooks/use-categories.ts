@@ -6,7 +6,6 @@ import {
   EditCategory,
 } from "@/lib/api/categories-api"
 import {
-  CategoriesResponse,
   CategoryResponseType,
   CategoryResponseWithProductsType,
 } from "@/lib/schema/categories.schema"
@@ -33,10 +32,10 @@ import {ZodiosError} from "@zodios/core"
  * const { data, isLoading, error } = useCategories();
  */
 export const useCategories = (): UseQueryResult<
-  CategoriesResponse[],
+  CategoryResponseType[],
   ZodiosError
 > => {
-  return useQuery<CategoriesResponse[], ZodiosError>({
+  return useQuery<CategoryResponseType[], ZodiosError>({
     queryKey: ["categories"],
     queryFn: () => categoryClient.getCategories(),
     staleTime: 5 * 60 * 1000,

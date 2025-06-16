@@ -3,7 +3,6 @@ import {
   NotFoundException,
   BadRequestException,
   Inject,
-  InternalServerErrorException,
 } from '@nestjs/common';
 import { isObject, PrismaService } from 'src/common';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -11,7 +10,6 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import slugify from 'slugify';
 import { handlePrismaError } from 'src/common/utils/handle-prisma-error';
 import {
-  CopyObjectCommand,
   DeleteObjectCommand,
   DeleteObjectsCommand,
   ListObjectsV2Command,
@@ -70,17 +68,14 @@ export class ProductsService {
       throw new BadRequestException('At least one product image is required.');
     }
 
-    // Generate a temporary slug for the product (used for temp S3 folder)
-    const tempSlug = slugify(dto.slug ?? dto.name ?? 'unknown', {
-      lower: true,
-      strict: true,
+    const imageData = imageFiles.map((file, idx) => {
+      const s3File = file as Express.Multer.File & { location?: string };
+      return {
+        url: s3File.location || '',
+        altText: dto.name,
+        position: idx,
+      };
     });
-
-    // Define the temporary S3 folder for image uploads
-    const tempFolder = `products/temp-${tempSlug}`;
-
-    // Build image data array for Prisma create
-    const imageData = this.buildImageData(imageFiles, dto.name);
 
     // Parse nested arrays (guaranteed by DTO validation)
     const parsedPackages = Array.isArray(dto.packages) ? dto.packages : [];
@@ -219,30 +214,7 @@ export class ProductsService {
         return productWithRlations;
       });
     } catch (error) {
-      // If any DB operation fails, remove the temp S3 folder:
-      try {
-        await this.deleteS3Folder(tempFolder);
-      } catch (cleanupErr) {
-        console.error(
-          'Failed to clean up temp S3 folder after DB error:',
-          cleanupErr,
-        );
-      }
       throw handlePrismaError(error, 'product');
-    }
-
-    try {
-      await this.moveImagesToFinalFolder(
-        tempFolder,
-        `products/${product.id}`,
-        product.images,
-      );
-      await this.deleteS3Folder(tempFolder);
-    } catch {
-      await this.safeCleanupProduct(product.id);
-      throw new InternalServerErrorException(
-        'Failed to finalize product images.',
-      );
     }
 
     return product;
@@ -557,29 +529,6 @@ export class ProductsService {
       throw handlePrismaError(dbError, 'product');
     }
 
-    // 9) If new images were uploaded, move them from temp → final
-    if (imageFiles.length) {
-      try {
-        const imagesToMove = updatedProduct.images.map((img) => ({
-          id: img.id,
-          url: img.url,
-        }));
-
-        await this.moveImagesToFinalFolder(
-          tempFolder,
-          `products/${updatedProduct.id}`,
-          imagesToMove,
-        );
-        await this.deleteS3Folder(tempFolder);
-      } catch (s3Error) {
-        console.error('Error moving updated images to final folder:', s3Error);
-        await this.safeCleanupProduct(updatedProduct.id);
-        throw new InternalServerErrorException(
-          'Failed to finalize updated product images.',
-        );
-      }
-    }
-
     // 10) Return the fully updated product
     return updatedProduct;
   }
@@ -888,43 +837,42 @@ export class ProductsService {
    * - Assumes that `this.s3` is an initialized S3 client and `this.prisma` is a Prisma client.
    * - The function is asynchronous and processes images sequentially.
    */
-  private async moveImagesToFinalFolder(
-    oldPrefix: string,
-    newPrefix: string,
-    images: { id: string; url: string }[],
-  ) {
-    const bucket = process.env.S3_BUCKET!;
-    for (const img of images) {
-      const urlObj = new URL(img.url);
-      const oldKey = urlObj.pathname.slice(1);
-      const newKey = oldKey.replace(oldPrefix, newPrefix);
+  // private async moveImagesToFinalFolder(
+  //   oldPrefix: string,
+  //   newPrefix: string,
+  //   images: { id: string; url: string }[],
+  // ) {
+  //   const bucket = process.env.S3_BUCKET!;
+  //   for (const img of images) {
+  //     const urlObj = new URL(img.url);
+  //     const oldKey = urlObj.pathname.slice(1);
+  //     const newKey = oldKey.replace(oldPrefix, newPrefix);
 
-      // 1. Copy object
-      await this.s3.send(
-        new CopyObjectCommand({
-          Bucket: bucket,
-          CopySource: `${bucket}/${oldKey}`,
-          Key: newKey,
-          ACL: 'public-read',
-        }),
-      );
+  //     // 1. Copy object
+  //     await this.s3.send(
+  //       new CopyObjectCommand({
+  //         Bucket: bucket,
+  //         CopySource: `${bucket}/${oldKey}`,
+  //         Key: newKey,
+  //       }),
+  //     );
 
-      // 2. Delete old object
-      await this.s3.send(
-        new DeleteObjectCommand({
-          Bucket: bucket,
-          Key: oldKey,
-        }),
-      );
+  //     // 2. Delete old object
+  //     await this.s3.send(
+  //       new DeleteObjectCommand({
+  //         Bucket: bucket,
+  //         Key: oldKey,
+  //       }),
+  //     );
 
-      // 3. Update the DB URL
-      const newUrl = `https://${bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${newKey}`;
-      await this.prisma.productImage.update({
-        where: { id: img.id },
-        data: { url: newUrl },
-      });
-    }
-  }
+  //     // 3. Update the DB URL
+  //     const newUrl = `https://${bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${newKey}`;
+  //     await this.prisma.productImage.update({
+  //       where: { id: img.id },
+  //       data: { url: newUrl },
+  //     });
+  //   }
+  // }
 
   /**
    * Safely cleans up all resources associated with a given product.

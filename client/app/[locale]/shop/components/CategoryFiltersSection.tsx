@@ -2,12 +2,12 @@
 
 import ShopFilters from "@/components/shop/ShopFilters"
 import {Separator} from "@/components/ui/separator"
-import {ProductResponse} from "@/lib/schema/products.schema"
+import {ProductSummaryType} from "@/lib/schema/products.schema"
 
 interface CategoryFiltersSectionProps {
   category: string
   setCategory: (category: string) => void
-  allProducts: ProductResponse[]
+  allProducts: ProductSummaryType[]
   isStickySmall: boolean
 }
 

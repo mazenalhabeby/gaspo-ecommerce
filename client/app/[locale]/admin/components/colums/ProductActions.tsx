@@ -14,12 +14,12 @@ import {dashboardRoutes} from "@/lib/routes"
 import {DeleteButton} from "@/components/DeleteButton"
 import {toast} from "sonner"
 import {beautifySlug} from "@/lib/utils"
-import {ProductResponse} from "@/lib/schema/products.schema"
 import {useDeleteProduct} from "@/hooks/use-products"
 import {NProgressLink} from "@/components/NProgressLink"
+import {ProductSummaryType} from "@/lib/schema/products.schema"
 
 type Props = {
-  product: ProductResponse
+  product: ProductSummaryType
 }
 
 export function ProductActions({product}: Props) {

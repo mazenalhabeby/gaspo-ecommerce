@@ -48,7 +48,7 @@ export default function FavoritesClientPage() {
                 className="p-4 border rounded-lg flex flex-col sm:flex-row gap-4"
               >
                 <Image
-                  src={item.images?.[0]?.url}
+                  src={item.images?.[0]?.url ?? "/placeholder.png"}
                   alt={item.name}
                   width={100}
                   height={100}
@@ -85,7 +85,7 @@ export default function FavoritesClientPage() {
                       addToCart({
                         id: `${item.id}-default`,
                         name: item.name,
-                        image: item.images?.[0]?.url,
+                        image: item.images?.[0]?.url ?? "/placeholder.png",
                         price: item.price,
                         slug: item.slug,
                         quantity: 1,
