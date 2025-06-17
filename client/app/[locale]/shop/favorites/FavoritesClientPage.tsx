@@ -64,9 +64,6 @@ export default function FavoritesClientPage() {
                       >
                         {item.name}
                       </NProgressLink>
-                      <p className="text-sm text-gray-500 line-through">
-                        ${(item.price * 1.4).toFixed(2)}
-                      </p>
                       <p className="text-lg text-red-600 font-bold">
                         ${item.price.toFixed(2)}
                       </p>
