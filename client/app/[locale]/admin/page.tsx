@@ -1,5 +1,5 @@
 import React from "react"
 
 export default function AdminPage() {
-  return <main>Admin Page is live</main>
+  return <main>Admin Page is live with test</main>
 }
