@@ -1,6 +1,6 @@
 import React from "react"
 
-const ProductDestailsSection = ({description}: {description: string}) => {
+const ProductDetailsSection = ({description}: {description: string}) => {
   return (
     <section>
       <h2 className="text-xl font-semibold">Details</h2>
@@ -9,4 +9,4 @@ const ProductDestailsSection = ({description}: {description: string}) => {
   )
 }
 
-export default ProductDestailsSection
+export default ProductDetailsSection

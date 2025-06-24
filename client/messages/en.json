@@ -181,5 +181,14 @@
     "description": "product description",
     "entity": "product",
     "name": "product name"
+  },
+  "shop": {
+    "all": "All",
+    "categories": "Categories",
+    "headerDescription": "Explore our curated selection of Gaspo products—where quality meets innovation to enhance every space.",
+    "headerTitle": "Discover Gaspo Product",
+    "loadMore": " Load More",
+    "noProducts": "No products found.",
+    "viewProduct": "View Product"
   }
 }

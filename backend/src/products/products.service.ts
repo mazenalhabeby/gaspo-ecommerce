@@ -575,6 +575,8 @@ export class ProductsService {
           categoryId: true,
           images: { take: 1, select: { url: true } },
           variants: true,
+          ProductTranslations: true,
+          categories: { include: { translations: true } },
         },
       }),
     ]);

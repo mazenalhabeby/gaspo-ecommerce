@@ -8,6 +8,7 @@ import ProductGridSection from "./components/ProductGridSection"
 import Image from "next/image"
 import {logo} from "@/assets"
 import ProductCardSkeleton from "./components/loading/ProductCardSkeleton"
+import {useTranslations} from "next-intl"
 
 const ITEMS_PER_PAGE = 6
 
@@ -15,6 +16,7 @@ export default function ShopClientPage() {
   const [category, setCategory] = useState("All")
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE)
   const [mounted, setMounted] = useState(false)
+  const t = useTranslations()
 
   const {data: products, isLoading} = useProducts()
 
@@ -73,7 +75,9 @@ export default function ShopClientPage() {
               className="opacity-50 grayscale"
               priority
             />
-            <p className="text-gray-500 font-semibold">No products found.</p>
+            <p className="text-gray-500 font-semibold">
+              {t("shop.noProducts")}
+            </p>
           </div>
         ) : (
           <>
@@ -86,7 +90,7 @@ export default function ShopClientPage() {
                   }
                   className="px-6 py-3 bg-primary text-white rounded hover:bg-primary/90 transition"
                 >
-                  Load More
+                  {t("shop.loadMore")}
                 </button>
               </div>
             )}

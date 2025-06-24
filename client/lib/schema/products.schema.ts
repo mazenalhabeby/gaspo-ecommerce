@@ -180,6 +180,8 @@ export const productSummarySchema = z.object({
       attributes: z.array(variantAttributeSchema).optional(),
     })
   ),
+  ProductTranslations: z.array(productTranslationSchema),
+  categories: categoryMiniSchema,
 })
 export type ProductSummaryType = z.infer<typeof productSummarySchema>
 

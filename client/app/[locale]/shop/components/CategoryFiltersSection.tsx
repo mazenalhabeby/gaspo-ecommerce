@@ -3,6 +3,7 @@
 import ShopFilters from "@/components/shop/ShopFilters"
 import {Separator} from "@/components/ui/separator"
 import {ProductSummaryType} from "@/lib/schema/products.schema"
+import {useTranslations} from "next-intl"
 
 interface CategoryFiltersSectionProps {
   category: string
@@ -17,6 +18,7 @@ const CategoryFiltersSection = ({
   allProducts,
   isStickySmall,
 }: CategoryFiltersSectionProps) => {
+  const t = useTranslations()
   const productCountByCategory = allProducts.reduce((acc, product) => {
     const id = product.categoryId || ""
     acc[id] = (acc[id] || 0) + 1
@@ -33,7 +35,7 @@ const CategoryFiltersSection = ({
       <div className="max-w-7xl mx-auto flex items-center gap-4 mb-4 px-1">
         <Separator className="flex-1" />
         <h2 id="category-heading" className="text-lg font-semibold capitalize">
-          Categories
+          {t("shop.categories")}
         </h2>
         <Separator className="flex-1" />
       </div>

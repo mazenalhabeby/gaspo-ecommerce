@@ -181,5 +181,14 @@
     "description": "Produktbeschreibung",
     "entity": "Produkt",
     "name": "Produktname"
+  },
+  "shop": {
+    "all": "Alle",
+    "categories": "Kategorien",
+    "headerDescription": "Erkunden Sie unsere kuratierte Auswahl an Gaspo -Produkten - wo die Qualität innovationen entspricht, um jeden Raum zu verbessern.",
+    "headerTitle": "Entdecken Sie das Gaspo -Produkt",
+    "loadMore": "Laden mehr",
+    "noProducts": "Keine Produkte gefunden.",
+    "viewProduct": "Produkt anzeigen"
   }
 }

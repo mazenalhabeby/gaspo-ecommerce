@@ -5,6 +5,7 @@ import {LayoutGrid} from "lucide-react"
 import Image from "next/image"
 import {useCategories} from "@/hooks/use-categories"
 import {beautifySlug} from "@/lib/utils"
+import {useLocale, useTranslations} from "next-intl"
 
 type Props = {
   selected: string
@@ -25,6 +26,8 @@ export default function ShopFilters({
   const [showLeftFade, setShowLeftFade] = useState(false)
   const [showRightFade, setShowRightFade] = useState(true)
   const [mounted, setMounted] = useState(false)
+  const t = useTranslations()
+  const locale = useLocale()
 
   const {data: categories = [], isLoading} = useCategories()
 
@@ -72,7 +75,7 @@ export default function ShopFilters({
           }`}
         >
           <div className="mb-2">{defaultIcon}</div>
-          <p className="font-semibold">All</p>
+          <p className="font-semibold">{t("shop.all")}</p>
           <span
             className={`text-xs ${
               selected === "All" ? "text-gray-100" : "text-gray-500"
@@ -89,41 +92,48 @@ export default function ShopFilters({
 
         {/* Dynamic categories */}
         {!isLoading &&
-          categories.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => onChange(cat.id)}
-              aria-pressed={selected === cat.id}
-              className={`flex-shrink-0 flex flex-col items-center justify-center transition-all duration-300 overflow-hidden ${
-                compact ? "w-20 h-24 text-xs" : "w-32 h-32"
-              } p-3 rounded-xl border shadow-sm ${
-                selected === cat.id
-                  ? "bg-primary text-white border-primary"
-                  : "bg-white text-gray-800 hover:bg-gray-50"
-              }`}
-            >
-              <div className="mb-2 ">
-                <Image
-                  src={cat.imageUrl || ""}
-                  alt={beautifySlug(cat.slug)}
-                  width={100}
-                  height={100}
-                  className="w-10 h-10 object-cover rounded-full"
-                  priority
-                />
-              </div>
-              <p className="font-semibold truncate w-full">
-                {beautifySlug(cat.slug)}
-              </p>
-              <span
-                className={`${
-                  selected === cat.id ? "text-gray-100" : "text-gray-500"
-                } text-xs`}
+          categories.map((cat) => {
+            const translation = cat?.translations?.find(
+              (t) => t.language === locale
+            )
+            return (
+              <button
+                key={cat.id}
+                onClick={() => onChange(cat.id)}
+                aria-pressed={selected === cat.id}
+                className={`flex-shrink-0 flex flex-col items-center justify-center transition-all duration-300 overflow-hidden ${
+                  compact ? "w-20 h-24 text-xs" : "w-32 h-32"
+                } p-3 rounded-xl border shadow-sm ${
+                  selected === cat.id
+                    ? "bg-primary text-white border-primary"
+                    : "bg-white text-gray-800 hover:bg-gray-50"
+                }`}
               >
-                {mounted ? `${productCountByCategory[cat.id] || 0} items` : "—"}
-              </span>
-            </button>
-          ))}
+                <div className="mb-2 ">
+                  <Image
+                    src={cat.imageUrl || ""}
+                    alt={beautifySlug(cat.slug)}
+                    width={100}
+                    height={100}
+                    className="w-10 h-10 object-cover rounded-full"
+                    priority
+                  />
+                </div>
+                <p className="font-semibold truncate w-full">
+                  {translation?.name}
+                </p>
+                <span
+                  className={`${
+                    selected === cat.id ? "text-gray-100" : "text-gray-500"
+                  } text-xs`}
+                >
+                  {mounted
+                    ? `${productCountByCategory[cat.id] || 0} items`
+                    : "—"}
+                </span>
+              </button>
+            )
+          })}
       </div>
     </div>
   )

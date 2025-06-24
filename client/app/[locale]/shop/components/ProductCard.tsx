@@ -7,12 +7,18 @@ import {ProductSummaryType} from "@/lib/schema/products.schema"
 import {Separator} from "@/components/ui/separator"
 import FavoriteButton from "@/components/FavoriteButton"
 import {NProgressLink} from "@/components/NProgressLink"
+import {useTranslations} from "next-intl"
+import {useTranslatedProduct} from "@/hooks/useTranslatedProduct"
 
 type Props = {
   product: ProductSummaryType
 }
 
 export default function ProductCard({product}: Props) {
+  const t = useTranslations()
+
+  const {productName, productDescription, productCategoryName} =
+    useTranslatedProduct(product)
   return (
     <motion.article
       initial={{opacity: 0, y: 30}}
@@ -24,12 +30,12 @@ export default function ProductCard({product}: Props) {
       {/* Product Image */}
       <NProgressLink
         href={shoppingRoutes.product(product.slug)}
-        aria-label={`View ${product.name}`}
+        aria-label={`View ${productName}`}
         className="block overflow-hidden rounded-t-xl"
       >
         <Image
           src={product.images?.[0]?.url ?? ""}
-          alt={product.name}
+          alt={productName}
           width={400}
           height={300}
           sizes="(max-width: 768px) 100vw, 33vw"
@@ -47,13 +53,16 @@ export default function ProductCard({product}: Props) {
               href={shoppingRoutes.product(product.slug)}
               className="hover:underline"
             >
-              {product.name}
+              {productName}
             </NProgressLink>
           </h3>
+          <p className="text-xs text-gray-500 mt-1 line-clamp-1">
+            {productCategoryName}
+          </p>
         </header>
 
         <p className="text-sm text-gray-600 mt-2 line-clamp-2">
-          {product.description}
+          {productDescription}
         </p>
 
         <Separator className="my-3" />
@@ -61,6 +70,7 @@ export default function ProductCard({product}: Props) {
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <span className="font-bold text-lg text-gray-900">
+              {product.currency}{" "}
               {product.variants && product.variants.length > 0
                 ? product.variants[1].price.toFixed(2)
                 : product.price.toFixed(2)}
@@ -70,7 +80,7 @@ export default function ProductCard({product}: Props) {
                 href={shoppingRoutes.product(product.slug)}
                 className="bg-primary hover:bg-primary/90 text-white text-sm px-3 py-2 rounded"
               >
-                View Product
+                {t("shop.viewProduct")}
               </NProgressLink>
               <FavoriteButton productId={product.id} product={product} />
             </div>

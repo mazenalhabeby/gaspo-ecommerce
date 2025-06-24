@@ -4,15 +4,15 @@ import {useState, useMemo, useEffect} from "react"
 import {useCartStore} from "@/store/cartStore"
 import {toast} from "sonner"
 import {useRouter} from "next/navigation"
-import {useLocale} from "next-intl"
 import BreadcrumbBar from "./BreadcrumbBar"
 import RatingStars from "@/components/RatingStars"
 import ProductReviewsSection from "./ProductReviewsSection"
-import ProductDestailsSection from "./ProductDestailsSection"
+import ProductDetailsSection from "./ProductDestailsSection"
 import ProductInfoSection from "./ProductInfoSection"
 import {Separator} from "@/components/ui/separator"
 import {Routes} from "@/lib/routes"
 import {ProductDetailType} from "@/lib/schema/products.schema"
+import {useTranslatedProduct} from "@/hooks/useTranslatedProduct"
 
 type Props = {
   product: ProductDetailType
@@ -20,19 +20,10 @@ type Props = {
 
 export default function ProductDetailClient({product}: Props) {
   const [quantity, setQuantity] = useState(1)
-  const locale = useLocale()
   const router = useRouter()
   const addToCart = useCartStore((s) => s.addToCart)
-
-  const translations = product.ProductTranslations.find(
-    (t) => t.language === locale
-  )
-
-  const productName = translations?.name || product.name
-  const productDescription = translations?.description || product.description
-  const categoryName =
-    product.categories?.translations.find((t) => t.language === locale)?.name ||
-    "Uncategorized"
+  const {productName, productDescription, productCategoryName} =
+    useTranslatedProduct(product)
 
   const [selectedAttributes, setSelectedAttributes] = useState<
     Record<string, string>
@@ -63,7 +54,7 @@ export default function ProductDetailClient({product}: Props) {
   const handleAddToCart = () => {
     addToCart({
       id: `${product.id}-${Object.values(selectedAttributes).join("-")}`,
-      name: `${productName} ${Object.entries(selectedAttributes)
+      name: `${name} ${Object.entries(selectedAttributes)
         .map(([, v]) => {
           try {
             const parsed = JSON.parse(v)
@@ -106,10 +97,10 @@ export default function ProductDetailClient({product}: Props) {
 
   return (
     <main className="container mx-auto flex flex-col gap-6 px-4 py-8 md:px-8 lg:px-16">
-      <BreadcrumbBar name={productName} />
+      <BreadcrumbBar name={productName as string} />
       <div>
         <h1 className="text-3xl font-bold">{productName}</h1>
-        <p className="text-gray-600">{categoryName}</p>
+        <p className="text-gray-600">{productCategoryName}</p>
         <RatingStars
           rating={
             (product.reviews?.reduce((sum, r) => sum + r.rating, 0) ?? 0) /
@@ -124,8 +115,8 @@ export default function ProductDetailClient({product}: Props) {
         <ProductInfoSection
           product={{
             ...product,
-            name: productName,
-            description: productDescription,
+            name: productName as string,
+            description: productDescription as string,
           }}
           quantity={quantity}
           setQuantity={setQuantity}
@@ -136,7 +127,7 @@ export default function ProductDetailClient({product}: Props) {
           selectedVariant={selectedVariant}
         />
         <Separator />
-        <ProductDestailsSection description={productDescription} />
+        <ProductDetailsSection description={productDescription as string} />
         <Separator />
         <ProductReviewsSection reviews={product.reviews || []} rating={0} />
       </div>
